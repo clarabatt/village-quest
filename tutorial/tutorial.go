@@ -5,6 +5,10 @@ import (
 	"strconv"
 )
 
+type Vertex struct {
+	Lat, Long float64
+}
+
 func Tutorial() {
 	fmt.Println("\n* Tutorial *")
 	z, x, c, v := variables()
@@ -22,6 +26,27 @@ func Tutorial() {
 	fmt.Println("Title: ", title.Title+" has "+strconv.Itoa(title.NumCaracters)+" caracters")
 
 	arrays()
+
+	dictionaries()
+}
+
+func dictionaries() {
+	fmt.Println("\n* Dictionaries *")
+	m := make(map[int]string)
+	m[1] = "One"
+	m[2] = "Two"
+
+	fmt.Println("Map: ", m)
+	fmt.Println("Map[1]: ", m[1])
+
+	m2 := map[string]Vertex{
+		"Toronto":   {43.70011, -79.4163},
+		"Vancouver": {49.2827, -123.1207},
+		"Montreal":  {45.50884, -73.58781},
+	}
+
+	fmt.Println("Map2: ", m2["Montreal"])
+
 }
 
 func arrays() {
