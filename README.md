@@ -3,9 +3,13 @@
 ## Run the application
 
 ```bash
-    go run cmd/*.go
+    go run main.go
+```
 
-    CompileDaemon -command="go run cmd/*.go"
+```bash
+    go build
+    go install
+    villageQuest
 ```
 
 ## 🗂️ Folder Structure
