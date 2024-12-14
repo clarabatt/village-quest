@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"villageQuest/tutorial"
+	"villageQuest/goTutorial"
 )
 
 func Execute() {
 	fmt.Println("=== Village Quest ===")
 
-	tutorial.Tutorial()
+	goTutorial.Tutorial()
 }
