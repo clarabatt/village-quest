@@ -21,6 +21,32 @@ func Tutorial() {
 
 	fmt.Println("Title: ", title.Title+" has "+strconv.Itoa(title.NumCaracters)+" caracters")
 
+	arrays()
+}
+
+func arrays() {
+	fmt.Println("\n* Arrays *")
+	var a [5]int
+	fmt.Println("Empty: ", a)
+
+	odds := [6]int{1, 3, 5, 7, 9, 11}
+	even := []int{2, 4, 6, 8, 10}
+
+	fmt.Println("Odds: ", odds[2:3])
+	fmt.Println("Even: ", even)
+
+	even = append(even, 12)
+
+	fmt.Println("Even: ", even)
+
+	for i, number := range even {
+		fmt.Println("Index: ", i, "Number: ", number)
+	}
+
+	for _, number := range odds {
+		fmt.Println("Number: ", number)
+	}
+
 }
 
 type Title struct {
