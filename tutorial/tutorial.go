@@ -65,6 +65,8 @@ func Tutorial() {
 
 	arrays()
 
+	classes()
+
 	dictionaries()
 }
 
