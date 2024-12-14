@@ -2,14 +2,40 @@ package tutorial
 
 import (
 	"fmt"
+	"strconv"
 )
 
 func Tutorial() {
 	fmt.Println("\n* Tutorial *")
 	z, x, c, v := variables()
 	fmt.Println(z, x, c, v, " <- variables")
+
 	loops()
+
 	conditions(z, x)
+
+	pointers(z)
+
+	name := "Village Quest"
+	title := Title{name, len(name)}
+
+	fmt.Println("Title: ", title.Title+" has "+strconv.Itoa(title.NumCaracters)+" caracters")
+
+}
+
+type Title struct {
+	Title        string
+	NumCaracters int
+}
+
+func pointers(z int) {
+	fmt.Println("\n* Pointers *")
+	p := &z
+	fmt.Println("Pointer: ", p)
+	fmt.Println("Value P: ", *p)
+
+	*p = 100
+	fmt.Println("Value Z: ", z)
 }
 
 func variables() (int, int, int, int) {
