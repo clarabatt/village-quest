@@ -1,11 +1,11 @@
-package main
+package cmd
 
 import (
 	"fmt"
-	"village-quest/tutorial"
+	"villageQuest/tutorial"
 )
 
-func main() {
+func Execute() {
 	fmt.Println("=== Village Quest ===")
 
 	tutorial.Tutorial()
