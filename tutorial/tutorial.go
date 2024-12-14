@@ -9,6 +9,49 @@ type Vertex struct {
 	Lat, Long float64
 }
 
+type Title struct {
+	Title        string
+	NumCaracters int
+}
+
+type AbstractTitle interface {
+	description()
+	print()
+	addSufix(sufix string)
+}
+
+func (t Title) description() {
+	fmt.Println("Title: ", t.Title+" has "+strconv.Itoa(t.NumCaracters)+" caracters")
+}
+
+func (t Title) print() {
+	fmt.Println("A print from the method: ", t.Title)
+}
+
+func (t *Title) addSufix(sufix string) {
+	t.Title = t.Title + " " + sufix
+	t.NumCaracters = len(t.Title)
+	fmt.Println("New Title: ", t.Title)
+}
+
+func classes() {
+	fmt.Println("\n* Classes *")
+	name := "Village Quest"
+	title := Title{name, len(name)}
+
+	title.print()
+
+	title.addSufix(" - The Game")
+	fmt.Println("Title: ", title.Title)
+	title.description()
+
+	var n AbstractTitle
+	n = &title
+
+	n.print()
+
+}
+
 func Tutorial() {
 	fmt.Println("\n* Tutorial *")
 	z, x, c, v := variables()
@@ -19,11 +62,6 @@ func Tutorial() {
 	conditions(z, x)
 
 	pointers(z)
-
-	name := "Village Quest"
-	title := Title{name, len(name)}
-
-	fmt.Println("Title: ", title.Title+" has "+strconv.Itoa(title.NumCaracters)+" caracters")
 
 	arrays()
 
@@ -72,11 +110,6 @@ func arrays() {
 		fmt.Println("Number: ", number)
 	}
 
-}
-
-type Title struct {
-	Title        string
-	NumCaracters int
 }
 
 func pointers(z int) {
