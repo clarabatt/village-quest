@@ -8,7 +8,7 @@ import (
 )
 
 func Execute() {
-	fmt.Println("=== Village Quest ===\n")
+	fmt.Println("=== Village Quest ===")
 	fmt.Println("Start a new game: ")
 
 	dbConnection := database.NewSqliteAdapter()
