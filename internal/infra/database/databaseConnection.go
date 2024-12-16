@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -21,11 +22,18 @@ type SqliteAdapter struct {
 
 func NewSqliteAdapter() *SqliteAdapter {
 	Migrate()
-	db, err := sql.Open("sqlite3", "./village_quest.db")
+	dbPath := filepath.Join("/home/clarabatt/projects/village-quest", "village_quest.db")
+	db, err := sql.Open("sqlite3", dbPath)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if err = db.Ping(); err != nil {
 		log.Fatal(err)
 	}
+
+	log.Println("Database connection established at:", dbPath)
 
 	return &SqliteAdapter{
 		connection: db,
@@ -41,7 +49,7 @@ func (s *SqliteAdapter) Close() error {
 }
 
 func Migrate() {
-	dbPath := "./village_quest.db"
+	dbPath := filepath.Join("/home/clarabatt/projects/village-quest", "village_quest.db")
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		file, err := os.Create(dbPath)
 		if err != nil {
@@ -62,14 +70,16 @@ func Migrate() {
         id UUID PRIMARY KEY,
         number INT NOT NULL,
         max_days_played INT NOT NULL,
-        players_name VARCHAR(255) NOT NULL
+        players_name VARCHAR(100) NOT NULL
     );
     `
 
 	_, err = db.Exec(createTableQuery)
+
 	if err != nil {
 		log.Fatal(err)
+		log.Println("Table 'game' already exists.")
+	} else {
+		log.Println("Table 'game' created.")
 	}
-
-	log.Println("Table 'game' created or already exists.")
 }
