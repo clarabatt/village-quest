@@ -9,12 +9,12 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func dir() string{
-executablePath, err := os.Executable()
-if err != nil {
-	log.Fatal(err)
-}
-return filepath.Dir(executablePath)
+func dir() string {
+	executablePath, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return filepath.Dir(executablePath)
 }
 
 type DatabaseConnection interface {
@@ -73,10 +73,10 @@ func Migrate() {
 
 	createTableQuery := `
     CREATE TABLE IF NOT EXISTS game (
-        id UUID PRIMARY KEY,
-        number INT NOT NULL,
-        max_days_played INT NOT NULL,
-        players_name VARCHAR(100) NOT NULL
+        id TEXT PRIMARY KEY,
+        number INTEGER NOT NULL,
+        max_days_played INTEGER NOT NULL,
+        players_name TEXT NOT NULL
     );
     `
 
