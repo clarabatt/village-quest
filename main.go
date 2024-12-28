@@ -1,9 +1,9 @@
 package main
 
 import (
-	"villageQuest/cmd"
+	"villageQuest/gameplay"
 )
 
 func main() {
-	cmd.Execute()
+	gameplay.Execute()
 }
