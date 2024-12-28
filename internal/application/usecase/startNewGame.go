@@ -29,7 +29,7 @@ func (s *StartNewGame) Execute() (game.Game, error) {
 
 	newGame := game.NewGame(nextGameNumber, player)
 
-	s.gameRepo.Save(*newGame)
+	s.gameRepo.Insert(*newGame)
 
 	return *newGame, err
 }

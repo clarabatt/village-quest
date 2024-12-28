@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"villageQuest/internal/domain/entity/game"
 	"villageQuest/internal/infra/database"
 
@@ -8,71 +9,100 @@ import (
 )
 
 type GameRepository interface {
-	Save(game.Game) error
+	Insert(game.Game) error
 	GetById(uuid.UUID) (game.Game, error)
 	GetByNumber(int) (game.Game, error)
 	GetNextGameNumber() (int, error)
 }
 
 type gameRepository struct {
-	connection database.DatabaseConnection
+	connection database.DBAdapter
 }
 
-func NewGameRepository(connection database.DatabaseConnection) GameRepository {
+func NewGameRepository(connection database.DBAdapter) GameRepository {
 	return &gameRepository{
 		connection: connection,
 	}
 }
 
-func (g *gameRepository) Save(game game.Game) error {
+func (g *gameRepository) Insert(game game.Game) error {
 	query := `
 		INSERT INTO game (id, number, max_days_played, players_name)
 		VALUES (?, ?, ?, ?)
 	`
-	_, err := g.connection.Query(query, game.Id(), game.Number(), game.MaxDaysPlayed(), game.PlayersName())
-	return err
+	_, err := g.connection.Exec(query, game.Id(), game.Number(), game.MaxDaysPlayed(), game.PlayersName())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (g *gameRepository) GetById(id uuid.UUID) (game.Game, error) {
 	query := `SELECT * FROM game WHERE id = ?`
-	row, err := g.connection.Query(query, id)
+	result := g.connection.Query(query, id)
 
-	var gameID uuid.UUID
-	var number, maxDaysPlayed int
-	var playersName string
+	if result.Err != nil {
+		return game.Game{}, result.Err
+	}
+	defer result.Rows.Close()
 
-	err = row.Scan(&gameID, &number, &maxDaysPlayed, &playersName)
-	if err != nil {
-		return game.Game{}, err
+	if result.Rows.Next() {
+		var gameID uuid.UUID
+		var number, maxDaysPlayed int
+		var playersName string
+
+		err := result.Rows.Scan(&gameID, &number, &maxDaysPlayed, &playersName)
+		if err != nil {
+			return game.Game{}, err
+		}
+		return *game.NewSavedGame(gameID, number, maxDaysPlayed, playersName), nil
 	}
 
-	return *game.NewSavedGame(gameID, number, maxDaysPlayed, playersName), nil
+	return game.Game{}, sql.ErrNoRows
 }
 
 func (g *gameRepository) GetByNumber(num int) (game.Game, error) {
 	query := `SELECT id, number, max_days_played, players_name FROM game WHERE number = ?`
-	row, err := g.connection.Query(query, num)
+	result := g.connection.Query(query, num)
 
-	var gameID uuid.UUID
-	var number, maxDaysPlayed int
-	var playersName string
+	if result.Err != nil {
+		return game.Game{}, result.Err
+	}
+	defer result.Rows.Close()
 
-	err = row.Scan(&gameID, &number, &maxDaysPlayed, &playersName)
-	if err != nil {
-		return game.Game{}, err
+	if result.Rows.Next() {
+		var gameID uuid.UUID
+		var number, maxDaysPlayed int
+		var playersName string
+
+		err := result.Rows.Scan(&gameID, &number, &maxDaysPlayed, &playersName)
+		if err != nil {
+			return game.Game{}, err
+		}
+
+		return *game.NewSavedGame(gameID, number, maxDaysPlayed, playersName), nil
 	}
 
-	return *game.NewSavedGame(gameID, number, maxDaysPlayed, playersName), nil
+	return game.Game{}, sql.ErrNoRows
 }
 
 func (g *gameRepository) GetNextGameNumber() (int, error) {
-	var nextNumber int
 	query := `SELECT COALESCE(MAX(number), 0) + 1 FROM game`
-	row, err := g.connection.Query(query)
+	result := g.connection.Query(query)
 
-	err = row.Scan(&nextNumber)
-	if err != nil {
-		return 0, err
+	if result.Err != nil {
+		return 0, result.Err
 	}
-	return nextNumber, nil
+	defer result.Rows.Close()
+
+	if result.Rows.Next() {
+		var nextNumber int
+		err := result.Rows.Scan(&nextNumber)
+		if err != nil {
+			return 0, err
+		}
+		return nextNumber, nil
+	}
+
+	return 0, sql.ErrNoRows
 }

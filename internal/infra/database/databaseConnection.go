@@ -9,24 +9,22 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func dir() string {
-	executablePath, err := os.Executable()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return filepath.Dir(executablePath)
+type QueryResult struct {
+	Rows *sql.Rows
+	Err  error
 }
 
-type DatabaseConnection interface {
-	Query(statement string, params ...interface{}) (*sql.Rows, error)
+type DBAdapter interface {
+	Query(statement string, params ...interface{}) QueryResult
+	Exec(statement string, params ...interface{}) (sql.Result, error)
 	Close() error
 }
 
-type SqliteAdapter struct {
+type SQLiteDB struct {
 	connection *sql.DB
 }
 
-func NewSqliteAdapter() *SqliteAdapter {
+func NewSqliteAdapter() *SQLiteDB {
 	Migrate()
 	dbPath := filepath.Join(dir(), "village_quest.db")
 	db, err := sql.Open("sqlite3", dbPath)
@@ -41,17 +39,42 @@ func NewSqliteAdapter() *SqliteAdapter {
 
 	log.Println("Database connection established at:", dbPath)
 
-	return &SqliteAdapter{
+	return &SQLiteDB{
 		connection: db,
 	}
 }
 
-func (s *SqliteAdapter) Query(statement string, params ...interface{}) (*sql.Rows, error) {
-	return s.connection.Query(statement, params...)
+func (s *SQLiteDB) Exec(statement string, params ...interface{}) (sql.Result, error) {
+	result, err := s.connection.Exec(statement, params...)
+	if err != nil {
+		log.Printf("Error executing statement: %s, params: %v, error: %s", statement, params, err)
+		return nil, err
+	}
+	log.Printf("Statement executed: %s, params: %v", statement, params)
+	return result, nil
 }
 
-func (s *SqliteAdapter) Close() error {
+func (s *SQLiteDB) Query(statement string, params ...interface{}) QueryResult {
+	rows, err := s.connection.Query(statement, params...)
+	log.Println("Query executed:", statement)
+	log.Println("Params:", params)
+	log.Println("Rows:", rows)
+	if err != nil {
+		log.Panicf("Error executing query: %s", err)
+	}
+	return QueryResult{rows, err}
+}
+
+func (s *SQLiteDB) Close() error {
 	return s.connection.Close()
+}
+
+func dir() string {
+	executablePath, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return filepath.Dir(executablePath)
 }
 
 func Migrate() {
@@ -84,8 +107,8 @@ func Migrate() {
 
 	if err != nil {
 		log.Fatal(err)
-		log.Println("Table 'game' already exists.")
+		log.Println("Error creating 'game' table")
 	} else {
-		log.Println("Table 'game' created.")
+		log.Println("Table 'game' ok")
 	}
 }
