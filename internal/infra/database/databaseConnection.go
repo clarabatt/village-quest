@@ -9,6 +9,14 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+func dir() string{
+executablePath, err := os.Executable()
+if err != nil {
+	log.Fatal(err)
+}
+return filepath.Dir(executablePath)
+}
+
 type DatabaseConnection interface {
 	Query(statement string, params ...interface{}) (*sql.Rows, error)
 	Close() error
@@ -20,7 +28,7 @@ type SqliteAdapter struct {
 
 func NewSqliteAdapter() *SqliteAdapter {
 	Migrate()
-	dbPath := filepath.Join("/home/clarabatt/projects/village-quest", "village_quest.db")
+	dbPath := filepath.Join(dir(), "village_quest.db")
 	db, err := sql.Open("sqlite3", dbPath)
 
 	if err != nil {
@@ -47,7 +55,7 @@ func (s *SqliteAdapter) Close() error {
 }
 
 func Migrate() {
-	dbPath := filepath.Join("/home/clarabatt/projects/village-quest", "village_quest.db")
+	dbPath := filepath.Join(dir(), "village_quest.db")
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		file, err := os.Create(dbPath)
 		if err != nil {
