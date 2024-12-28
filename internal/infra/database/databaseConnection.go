@@ -50,15 +50,11 @@ func (s *SQLiteDB) Exec(statement string, params ...interface{}) (sql.Result, er
 		log.Printf("Error executing statement: %s, params: %v, error: %s", statement, params, err)
 		return nil, err
 	}
-	log.Printf("Statement executed: %s, params: %v", statement, params)
 	return result, nil
 }
 
 func (s *SQLiteDB) Query(statement string, params ...interface{}) QueryResult {
 	rows, err := s.connection.Query(statement, params...)
-	log.Println("Query executed:", statement)
-	log.Println("Params:", params)
-	log.Println("Rows:", rows)
 	if err != nil {
 		log.Panicf("Error executing query: %s", err)
 	}
