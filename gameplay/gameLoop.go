@@ -2,7 +2,7 @@ package gameplay
 
 import (
 	"fmt"
-	"villageQuest/internal/application/service"
+	"villageQuest/internal/application/usecase"
 	"villageQuest/internal/infra/database"
 	"villageQuest/internal/infra/repository"
 )
@@ -10,13 +10,13 @@ import (
 func Execute() {
 	dbConnection := database.NewSqliteAdapter()
 	gameRepo := repository.NewGameRepository(dbConnection)
-	gameStarterService := service.NewGameStarterService(gameRepo)
+	gameStarterService := usecase.NewGameStarter(gameRepo)
 
 	mainMenu(gameStarterService)
 }
 
-func mainMenu(starterService *service.GameStarterService) {
-	fmt.Println("=== Village Quest ===")
+func mainMenu(starterService *usecase.GameStarterUseCase) {
+	fmt.Println("=== Welcome to Village Quest ===")
 	fmt.Println("1. Start a new game")
 	fmt.Println("2. Load a game")
 	fmt.Println("3. Exit")

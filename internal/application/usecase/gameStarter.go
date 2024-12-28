@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"villageQuest/internal/infra/repository"
 )
 
-type GameStarterService struct {
+type GameStarterUseCase struct {
 	gameRepo repository.GameRepository
 }
 
@@ -15,24 +15,24 @@ type GameStarter interface {
 	Load() (*game.Game, error)
 }
 
-func NewGameStarterService(gameRepo repository.GameRepository) *GameStarterService {
-	return &GameStarterService{
+func NewGameStarter(gameRepo repository.GameRepository) *GameStarterUseCase {
+	return &GameStarterUseCase{
 		gameRepo: gameRepo,
 	}
 }
 
-func (s *GameStarterService) getPlayerName() string {
+func (s *GameStarterUseCase) getPlayerName() string {
 	var playerName string
 	fmt.Print("Enter your name: ")
 	fmt.Scanln(&playerName)
 	return playerName
 }
 
-func (s *GameStarterService) loadGamesList() {
+func (s *GameStarterUseCase) loadGamesList() {
 	fmt.Println("Games List")
 }
 
-func (s *GameStarterService) Create() (game.Game, error) {
+func (s *GameStarterUseCase) Create() (game.Game, error) {
 	fmt.Println("=== New Game ===")
 	playerName := s.getPlayerName()
 
@@ -45,7 +45,7 @@ func (s *GameStarterService) Create() (game.Game, error) {
 	return *gameInstance, err
 }
 
-func (s *GameStarterService) Load() (game.Game, error) {
+func (s *GameStarterUseCase) Load() (game.Game, error) {
 	fmt.Println("=== Load Game ===")
 	s.loadGamesList()
 
