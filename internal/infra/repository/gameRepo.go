@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"villageQuest/internal/domain/entity/game"
 	"villageQuest/internal/infra/database"
 
@@ -10,8 +11,7 @@ import (
 
 type GameRepository interface {
 	Insert(game.Game) error
-	GetById(uuid.UUID) (game.Game, error)
-	GetByNumber(int) (game.Game, error)
+	GetAll() ([]game.Game, error)
 	GetNextGameNumber() (int, error)
 }
 
@@ -37,53 +37,35 @@ func (g *gameRepository) Insert(game game.Game) error {
 	return nil
 }
 
-func (g *gameRepository) GetById(id uuid.UUID) (game.Game, error) {
-	query := `SELECT * FROM game WHERE id = ?`
-	result := g.connection.Query(query, id)
+func (g *gameRepository) GetAll() ([]game.Game, error) {
+	query := `SELECT id, number, max_days_played, players_name FROM game`
+	result := g.connection.Query(query)
+	var games []game.Game
 
 	if result.Err != nil {
-		return game.Game{}, result.Err
+		return nil, result.Err
 	}
 	defer result.Rows.Close()
 
-	if result.Rows.Next() {
+	for result.Rows.Next() {
 		var gameID uuid.UUID
 		var number, maxDaysPlayed int
 		var playersName string
 
 		err := result.Rows.Scan(&gameID, &number, &maxDaysPlayed, &playersName)
 		if err != nil {
-			return game.Game{}, err
-		}
-		return *game.NewSavedGame(gameID, number, maxDaysPlayed, playersName), nil
-	}
-
-	return game.Game{}, sql.ErrNoRows
-}
-
-func (g *gameRepository) GetByNumber(num int) (game.Game, error) {
-	query := `SELECT id, number, max_days_played, players_name FROM game WHERE number = ?`
-	result := g.connection.Query(query, num)
-
-	if result.Err != nil {
-		return game.Game{}, result.Err
-	}
-	defer result.Rows.Close()
-
-	if result.Rows.Next() {
-		var gameID uuid.UUID
-		var number, maxDaysPlayed int
-		var playersName string
-
-		err := result.Rows.Scan(&gameID, &number, &maxDaysPlayed, &playersName)
-		if err != nil {
-			return game.Game{}, err
+			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
-		return *game.NewSavedGame(gameID, number, maxDaysPlayed, playersName), nil
+		game := game.NewSavedGame(gameID, number, maxDaysPlayed, playersName)
+		games = append(games, *game)
 	}
 
-	return game.Game{}, sql.ErrNoRows
+	if len(games) == 0 {
+		return nil, sql.ErrNoRows
+	}
+
+	return games, nil
 }
 
 func (g *gameRepository) GetNextGameNumber() (int, error) {

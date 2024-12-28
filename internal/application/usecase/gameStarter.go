@@ -1,53 +1,41 @@
 package usecase
 
 import (
-	"fmt"
 	"villageQuest/internal/domain/entity/game"
 	"villageQuest/internal/infra/repository"
 )
 
 type GameStarterUseCase struct {
-	gameRepo repository.GameRepository
+	gameRepo  repository.GameRepository
+	gamesList []game.Game
 }
 
 type GameStarter interface {
 	Create() (*game.Game, error)
-	Load() (*game.Game, error)
+	GetAllGames() (*game.Game, error)
 }
 
 func NewGameStarter(gameRepo repository.GameRepository) *GameStarterUseCase {
+	games, _ := gameRepo.GetAll()
 	return &GameStarterUseCase{
-		gameRepo: gameRepo,
+		gameRepo:  gameRepo,
+		gamesList: games,
 	}
 }
 
-func (s *GameStarterUseCase) getPlayerName() string {
-	var playerName string
-	fmt.Print("Enter your name: ")
-	fmt.Scanln(&playerName)
-	return playerName
-}
-
 func (s *GameStarterUseCase) loadGamesList() {
-	fmt.Println("Games List")
+	games, _ := s.gameRepo.GetAll()
+	s.gamesList = games
 }
 
-func (s *GameStarterUseCase) Create() (game.Game, error) {
-	fmt.Println("=== New Game ===")
-	playerName := s.getPlayerName()
-
+func (s *GameStarterUseCase) Create(playerName string) (game.Game, error) {
 	nextGameNumber, err := s.gameRepo.GetNextGameNumber()
-
 	gameInstance := game.NewGame(nextGameNumber, playerName)
-
 	s.gameRepo.Insert(*gameInstance)
-
+	s.loadGamesList()
 	return *gameInstance, err
 }
 
-func (s *GameStarterUseCase) Load() (game.Game, error) {
-	fmt.Println("=== Load Game ===")
-	s.loadGamesList()
-
-	return game.Game{}, nil
+func (s *GameStarterUseCase) GetAllGames() ([]game.Game, error) {
+	return s.gamesList, nil
 }
