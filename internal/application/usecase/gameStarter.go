@@ -23,11 +23,6 @@ func NewGameStarter(gameRepo repository.GameRepository) *GameStarterUseCase {
 	}
 }
 
-func (s *GameStarterUseCase) loadGamesList() {
-	games, _ := s.gameRepo.GetAll()
-	s.gamesList = games
-}
-
 func (s *GameStarterUseCase) Create(playerName string) (game.Game, error) {
 	nextGameNumber, err := s.gameRepo.GetNextGameNumber()
 	gameInstance := game.NewGame(nextGameNumber, playerName)
@@ -38,4 +33,9 @@ func (s *GameStarterUseCase) Create(playerName string) (game.Game, error) {
 
 func (s *GameStarterUseCase) GetAllGames() ([]game.Game, error) {
 	return s.gamesList, nil
+}
+
+func (s *GameStarterUseCase) loadGamesList() {
+	games, _ := s.gameRepo.GetAll()
+	s.gamesList = games
 }
