@@ -5,27 +5,29 @@ import (
 )
 
 type Game struct {
-	id            uuid.UUID
-	number        int
-	maxDaysPlayed int
-	playersName   string
+	id          uuid.UUID
+	number      int
+	daysPlayed  int
+	playersName string
 }
 
+// NewGame Instantiate a New Game
 func NewGame(num int, name string) *Game {
 	return &Game{
-		id:            uuid.New(),
-		number:        num,
-		maxDaysPlayed: 0,
-		playersName:   name,
+		id:          uuid.New(),
+		number:      num,
+		daysPlayed:  0,
+		playersName: name,
 	}
 }
 
-func NewSavedGame(existentId uuid.UUID, num int, days int, name string) *Game {
+// LoadGame Instantiate an existent game
+func LoadGame(existentId uuid.UUID, num int, days int, name string) *Game {
 	return &Game{
-		id:            existentId,
-		number:        num,
-		maxDaysPlayed: days,
-		playersName:   name,
+		id:          existentId,
+		number:      num,
+		daysPlayed:  days,
+		playersName: name,
 	}
 }
 
@@ -37,8 +39,8 @@ func (g *Game) Number() int {
 	return g.number
 }
 
-func (g *Game) MaxDaysPlayed() int {
-	return g.maxDaysPlayed
+func (g *Game) DaysPlayed() int {
+	return g.daysPlayed
 }
 
 func (g *Game) PlayersName() string {
