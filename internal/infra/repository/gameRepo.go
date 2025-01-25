@@ -30,7 +30,7 @@ func (g *gameRepository) Insert(game game.Game) error {
 		INSERT INTO game (id, number, max_days_played, players_name)
 		VALUES (?, ?, ?, ?)
 	`
-	_, err := g.connection.Exec(query, game.Id(), game.Number(), game.MaxDaysPlayed(), game.PlayersName())
+	_, err := g.connection.Exec(query, game.Id(), game.Number(), game.DaysPlayed(), game.PlayersName())
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (g *gameRepository) GetAll() ([]game.Game, error) {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
-		game := game.NewSavedGame(gameID, number, maxDaysPlayed, playersName)
+		game := game.LoadGame(gameID, number, maxDaysPlayed, playersName)
 		games = append(games, *game)
 	}
 
