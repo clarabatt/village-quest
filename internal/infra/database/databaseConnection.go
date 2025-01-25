@@ -25,8 +25,21 @@ type SQLiteDB struct {
 }
 
 func NewSqliteAdapter() *SQLiteDB {
-	Migrate()
-	dbPath := filepath.Join(dir(), "village_quest.db")
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal("Failed to get user home directory:", err)
+	}
+
+	appDir := filepath.Join(homeDir, ".village_quest")
+	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
+		log.Fatal("Failed to create application directory:", err)
+	}
+
+	dbPath := filepath.Join(appDir, "village_quest.db")
+	log.Println("Database path:", dbPath)
+
+	Migrate(dbPath)
+
 	db, err := sql.Open("sqlite3", dbPath)
 
 	if err != nil {
@@ -71,40 +84,4 @@ func dir() string {
 		log.Fatal(err)
 	}
 	return filepath.Dir(executablePath)
-}
-
-func Migrate() {
-	dbPath := filepath.Join(dir(), "village_quest.db")
-	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-		file, err := os.Create(dbPath)
-		if err != nil {
-			log.Fatal(err)
-		}
-		file.Close()
-		log.Println("Database file created:", dbPath)
-	}
-
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	createTableQuery := `
-    CREATE TABLE IF NOT EXISTS game (
-        id TEXT PRIMARY KEY,
-        number INTEGER NOT NULL,
-        max_days_played INTEGER NOT NULL,
-        players_name TEXT NOT NULL
-    );
-    `
-
-	_, err = db.Exec(createTableQuery)
-
-	if err != nil {
-		log.Fatal(err)
-		log.Println("Error creating 'game' table")
-	} else {
-		log.Println("Table 'game' ok")
-	}
 }
