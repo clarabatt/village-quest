@@ -77,11 +77,3 @@ func (s *SQLiteDB) Query(statement string, params ...interface{}) QueryResult {
 func (s *SQLiteDB) Close() error {
 	return s.connection.Close()
 }
-
-func dir() string {
-	executablePath, err := os.Executable()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return filepath.Dir(executablePath)
-}

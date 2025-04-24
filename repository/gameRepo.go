@@ -3,8 +3,9 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"villageQuest/database"
 	"villageQuest/domain/entity/game"
-	"villageQuest/infra/database"
 
 	"github.com/google/uuid"
 )
@@ -45,7 +46,11 @@ func (g *gameRepository) GetAll() ([]game.Game, error) {
 	if result.Err != nil {
 		return nil, result.Err
 	}
-	defer result.Rows.Close()
+	defer func() {
+		if err := result.Rows.Close(); err != nil {
+			log.Printf("Warning: failed to close row: %v", err)
+		}
+	}()
 
 	for result.Rows.Next() {
 		var gameID uuid.UUID
@@ -75,7 +80,11 @@ func (g *gameRepository) GetNextGameNumber() (int, error) {
 	if result.Err != nil {
 		return 0, result.Err
 	}
-	defer result.Rows.Close()
+	defer func() {
+		if err := result.Rows.Close(); err != nil {
+			log.Printf("Warning: failed to close row: %v", err)
+		}
+	}()
 
 	if result.Rows.Next() {
 		var nextNumber int

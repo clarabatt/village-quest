@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"villageQuest/domain/entity/game"
-	"villageQuest/infra/repository"
+	"villageQuest/repository"
 )
 
 type GameStarterUseCase struct {

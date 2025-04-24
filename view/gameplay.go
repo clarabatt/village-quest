@@ -2,9 +2,9 @@ package gameplay
 
 import (
 	"fmt"
-	"villageQuest/application/usecase"
-	"villageQuest/infra/database"
-	"villageQuest/infra/repository"
+	"villageQuest/database"
+	"villageQuest/repository"
+	"villageQuest/usecase"
 )
 
 func Execute() {

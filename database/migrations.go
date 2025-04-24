@@ -7,22 +7,30 @@ import (
 )
 
 func Migrate(dbPath string) {
+	// If no DB
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-		file, err := os.Create(dbPath)
-		if err != nil {
-			log.Fatal(err)
-		}
-		file.Close()
-		log.Println("Database file created:", dbPath)
+		createNewDB(dbPath)
 	}
-
+	// Open the file
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
-
+	if err := db.Close(); err != nil {
+		log.Fatalf("Failed to close DB file: %v", err)
+	}
 	gameTable(db)
+}
+
+func createNewDB(dbPath string) {
+	file, err := os.Create(dbPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		log.Fatalf("Failed to close new DB file: %v", err)
+	}
+	log.Println("Database file created at:", dbPath)
 }
 
 func gameTable(db *sql.DB) {
