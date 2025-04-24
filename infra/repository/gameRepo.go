@@ -3,8 +3,8 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"villageQuest/internal/domain/entity/game"
-	"villageQuest/internal/infra/database"
+	"villageQuest/domain/entity/game"
+	"villageQuest/infra/database"
 
 	"github.com/google/uuid"
 )

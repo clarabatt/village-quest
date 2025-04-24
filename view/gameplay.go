@@ -2,9 +2,9 @@ package gameplay
 
 import (
 	"fmt"
-	"villageQuest/internal/application/usecase"
-	"villageQuest/internal/infra/database"
-	"villageQuest/internal/infra/repository"
+	"villageQuest/application/usecase"
+	"villageQuest/infra/database"
+	"villageQuest/infra/repository"
 )
 
 func Execute() {
@@ -25,7 +25,7 @@ func mainMenu(starterService *usecase.GameStarterUseCase) int {
 	fmt.Println("=== Welcome to Village Quest ===")
 	fmt.Println("1. Start a new game")
 	fmt.Println("2. Load a game")
-	fmt.Println("3. Exit")
+	fmt.Println("0. Exit")
 
 	fmt.Print("> ")
 	var option int
@@ -33,6 +33,9 @@ func mainMenu(starterService *usecase.GameStarterUseCase) int {
 	fmt.Scanln(&option)
 
 	switch option {
+	case 0:
+		fmt.Println("Goodbye!")
+		return 0
 	case 1:
 		fmt.Println("=== New Game ===")
 		playerName := getPlayerName()
@@ -48,9 +51,6 @@ func mainMenu(starterService *usecase.GameStarterUseCase) int {
 		fmt.Scanln(&selectedGame)
 		fmt.Println("Loading game... ", games[selectedGame-1].PlayersName())
 		return 1
-	case 3:
-		fmt.Println("Goodbye!")
-		return 0
 	default:
 		fmt.Println("Invalid option. Try again.")
 		return 1

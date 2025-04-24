@@ -1,7 +1,7 @@
 package main
 
 import (
-	"villageQuest/gameplay"
+	gameplay "villageQuest/view"
 )
 
 func main() {
