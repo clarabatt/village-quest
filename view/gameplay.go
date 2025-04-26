@@ -2,6 +2,7 @@ package gameplay
 
 import (
 	"fmt"
+	"log"
 	"villageQuest/database"
 	"villageQuest/repository"
 	"villageQuest/usecase"
@@ -30,7 +31,10 @@ func mainMenu(starterService *usecase.GameStarterUseCase) int {
 	fmt.Print("> ")
 	var option int
 	var selectedGame int
-	fmt.Scanln(&option)
+	if _, err := fmt.Scanln(&option); err != nil {
+		log.Println("Error reading input:", err)
+		return 1
+	}
 
 	switch option {
 	case 0:
@@ -39,7 +43,9 @@ func mainMenu(starterService *usecase.GameStarterUseCase) int {
 	case 1:
 		fmt.Println("=== New Game ===")
 		playerName := getPlayerName()
-		starterService.Create(playerName)
+		if _, err := starterService.Create(playerName); err != nil {
+			log.Println("Error creating game:", err)
+		}
 		return 1
 	case 2:
 		fmt.Println("=== Load Game ===")
@@ -48,7 +54,9 @@ func mainMenu(starterService *usecase.GameStarterUseCase) int {
 			fmt.Printf("%d. %s\n", game.Number(), game.PlayersName())
 		}
 		fmt.Print("> ")
-		fmt.Scanln(&selectedGame)
+		if _, err := fmt.Scanln(&selectedGame); err != nil {
+			log.Println("Error reading input:", err)
+		}
 		fmt.Println("Loading game... ", games[selectedGame-1].PlayersName())
 		return 1
 	default:
@@ -60,6 +68,9 @@ func mainMenu(starterService *usecase.GameStarterUseCase) int {
 func getPlayerName() string {
 	var playerName string
 	fmt.Print("Enter your name: ")
-	fmt.Scanln(&playerName)
+	if _, err := fmt.Scanln(&playerName); err != nil {
+		log.Println("Error reading input:", err)
+		return ""
+	}
 	return playerName
 }

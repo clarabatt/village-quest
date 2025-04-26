@@ -15,6 +15,19 @@ Install Sqlite3: https://www.sqlite.org/download.html
     villageQuest
 ```
 
+### Run tests
+
+```bash
+    go test ./...
+    go test -cover ./...
+```
+
+### Run linter
+
+```bash
+    golangci-lint run
+```
+
 ## 📝 Game Description
 
 The objective of the game is to build a village from scratch and manage resources to grow the village until it becomes a city.

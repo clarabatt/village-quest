@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"log"
 	"villageQuest/domain/entity/game"
 	"villageQuest/repository"
 )
@@ -26,7 +27,9 @@ func NewGameStarter(gameRepo repository.GameRepository) *GameStarterUseCase {
 func (s *GameStarterUseCase) Create(playerName string) (game.Game, error) {
 	nextGameNumber, err := s.gameRepo.GetNextGameNumber()
 	gameInstance := game.NewGame(nextGameNumber, playerName)
-	s.gameRepo.Insert(*gameInstance)
+	if err := s.gameRepo.Insert(*gameInstance); err != nil {
+		log.Print("Error inserting a game instance")
+	}
 	s.loadGamesList()
 	return *gameInstance, err
 }
