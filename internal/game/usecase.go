@@ -23,7 +23,8 @@ func NewGameStarter(gameRepo GameRepository) *GameStarterUseCase {
 }
 
 func (s *GameStarterUseCase) Create(playerName string) (Game, error) {
-	nextGameNumber, err := s.gameRepo.GetNextGameNumber()
+	var err error
+	nextGameNumber := len(s.gamesList)
 	gameInstance := NewGame(nextGameNumber, playerName)
 	if err := s.gameRepo.Insert(*gameInstance); err != nil {
 		log.Print("Error inserting a game instance")

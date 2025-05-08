@@ -11,7 +11,6 @@ type Game struct {
 	playersName string
 }
 
-// NewGame Instantiate a New Game
 func NewGame(num int, name string) *Game {
 	return &Game{
 		id:          uuid.New(),
@@ -21,7 +20,6 @@ func NewGame(num int, name string) *Game {
 	}
 }
 
-// LoadGame Instantiate an existent game
 func LoadGame(existentId uuid.UUID, num int, days int, name string) *Game {
 	return &Game{
 		id:          existentId,

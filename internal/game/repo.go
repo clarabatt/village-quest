@@ -12,7 +12,6 @@ import (
 type GameRepository interface {
 	Insert(Game) error
 	GetAll() ([]Game, error)
-	GetNextGameNumber() (int, error)
 }
 
 type gameRepository struct {
@@ -69,27 +68,4 @@ func (g *gameRepository) GetAll() ([]Game, error) {
 	}
 
 	return games, nil
-}
-
-func (g *gameRepository) GetNextGameNumber() (int, error) {
-	query := `SELECT COALESCE(MAX(number), 0) + 1 FROM game`
-	result, err := g.connection.Query(query)
-	if err != nil {
-		return 0, err
-	}
-	defer func() {
-		if err := result.Rows.Close(); err != nil {
-			log.Printf("Warning: failed to close row: %v", err)
-		}
-	}()
-	if result.Rows.Next() {
-		var nextNumber int
-		err := result.Rows.Scan(&nextNumber)
-		if err != nil {
-			return 0, err
-		}
-		return nextNumber, nil
-	}
-
-	return 0, sql.ErrNoRows
 }
