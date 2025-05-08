@@ -1,18 +1,17 @@
-package repository
+package game
 
 import (
 	"database/sql"
 	"fmt"
 	"log"
-	"villageQuest/database"
-	"villageQuest/domain/entity/game"
+	"villageQuest/internal/database"
 
 	"github.com/google/uuid"
 )
 
 type GameRepository interface {
-	Insert(game.Game) error
-	GetAll() ([]game.Game, error)
+	Insert(Game) error
+	GetAll() ([]Game, error)
 	GetNextGameNumber() (int, error)
 }
 
@@ -26,7 +25,7 @@ func NewGameRepository(connection database.DBAdapter) GameRepository {
 	}
 }
 
-func (g *gameRepository) Insert(game game.Game) error {
+func (g *gameRepository) Insert(game Game) error {
 	query := `
 		INSERT INTO game (id, number, max_days_played, players_name)
 		VALUES (?, ?, ?, ?)
@@ -38,10 +37,10 @@ func (g *gameRepository) Insert(game game.Game) error {
 	return nil
 }
 
-func (g *gameRepository) GetAll() ([]game.Game, error) {
+func (g *gameRepository) GetAll() ([]Game, error) {
 	query := `SELECT id, number, max_days_played, players_name FROM game`
 	result := g.connection.Query(query)
-	var games []game.Game
+	var games []Game
 
 	if result.Err != nil {
 		return nil, result.Err
@@ -62,7 +61,7 @@ func (g *gameRepository) GetAll() ([]game.Game, error) {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
-		game := game.LoadGame(gameID, number, maxDaysPlayed, playersName)
+		game := LoadGame(gameID, number, maxDaysPlayed, playersName)
 		games = append(games, *game)
 	}
 
