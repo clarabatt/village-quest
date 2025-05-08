@@ -11,11 +11,10 @@ import (
 
 type QueryResult struct {
 	Rows *sql.Rows
-	Err  error
 }
 
 type DBAdapter interface {
-	Query(statement string, params ...interface{}) QueryResult
+	Query(statement string, params ...interface{}) (QueryResult, error)
 	Exec(statement string, params ...interface{}) (sql.Result, error)
 	Close() error
 }
@@ -63,15 +62,15 @@ func (s *SQLiteDB) Exec(statement string, params ...interface{}) (sql.Result, er
 		log.Printf("Error executing statement: %s, params: %v, error: %s", statement, params, err)
 		return nil, err
 	}
-	return result, nil
+	return result, err
 }
 
-func (s *SQLiteDB) Query(statement string, params ...interface{}) QueryResult {
+func (s *SQLiteDB) Query(statement string, params ...interface{}) (QueryResult, error) {
 	rows, err := s.connection.Query(statement, params...)
 	if err != nil {
 		log.Panicf("Error executing query: %s", err)
 	}
-	return QueryResult{rows, err}
+	return QueryResult{rows}, err
 }
 
 func (s *SQLiteDB) Close() error {

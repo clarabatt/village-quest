@@ -39,12 +39,11 @@ func (g *gameRepository) Insert(game Game) error {
 
 func (g *gameRepository) GetAll() ([]Game, error) {
 	query := `SELECT id, number, max_days_played, players_name FROM game`
-	result := g.connection.Query(query)
-	var games []Game
-
-	if result.Err != nil {
-		return nil, result.Err
+	result, err := g.connection.Query(query)
+	if err != nil {
+		return nil, err
 	}
+	var games []Game
 	defer func() {
 		if err := result.Rows.Close(); err != nil {
 			log.Printf("Warning: failed to close row: %v", err)
@@ -74,17 +73,15 @@ func (g *gameRepository) GetAll() ([]Game, error) {
 
 func (g *gameRepository) GetNextGameNumber() (int, error) {
 	query := `SELECT COALESCE(MAX(number), 0) + 1 FROM game`
-	result := g.connection.Query(query)
-
-	if result.Err != nil {
-		return 0, result.Err
+	result, err := g.connection.Query(query)
+	if err != nil {
+		return 0, err
 	}
 	defer func() {
 		if err := result.Rows.Close(); err != nil {
 			log.Printf("Warning: failed to close row: %v", err)
 		}
 	}()
-
 	if result.Rows.Next() {
 		var nextNumber int
 		err := result.Rows.Scan(&nextNumber)
