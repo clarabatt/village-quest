@@ -9,18 +9,18 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+type SQLiteDB struct {
+	connection *sql.DB
+}
+
 type QueryResult struct {
 	Rows *sql.Rows
 }
 
 type DBAdapter interface {
 	Query(statement string, params ...interface{}) (QueryResult, error)
-	Exec(statement string, params ...interface{}) (sql.Result, error)
+	Execute(statement string, params ...interface{}) (sql.Result, error)
 	Close() error
-}
-
-type SQLiteDB struct {
-	connection *sql.DB
 }
 
 func NewSqliteAdapter() *SQLiteDB {
@@ -56,10 +56,10 @@ func NewSqliteAdapter() *SQLiteDB {
 	}
 }
 
-func (s *SQLiteDB) Exec(statement string, params ...interface{}) (sql.Result, error) {
+func (s *SQLiteDB) Execute(statement string, params ...interface{}) (sql.Result, error) {
 	result, err := s.connection.Exec(statement, params...)
 	if err != nil {
-		log.Printf("Error executing statement: %s, params: %v, error: %s", statement, params, err)
+		log.Panicf("Error executing statement: %s, params: %v, error: %s", statement, params, err)
 		return nil, err
 	}
 	return result, err

@@ -30,7 +30,7 @@ func (g *gameRepository) Insert(game Game) error {
 		INSERT INTO game (id, number, max_days_played, players_name)
 		VALUES (?, ?, ?, ?)
 	`
-	_, err := g.connection.Exec(query, game.Id(), game.Number(), game.DaysPlayed(), game.PlayersName())
+	_, err := g.connection.Execute(query, game.Id(), game.Number(), game.DaysPlayed(), game.PlayersName())
 	if err != nil {
 		return err
 	}
