@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,17 +25,13 @@ type DBAdapter interface {
 }
 
 func NewSqliteAdapter() *SQLiteDB {
-	homeDir, err := os.UserHomeDir()
+	homeDir, err := os.Getwd()
+	fmt.Printf("Home Dir: %v\n", homeDir)
 	if err != nil {
-		log.Fatal("Failed to get user home directory:", err)
+		log.Fatal("Failed to get project's home directory:", err)
 	}
 
-	appDir := filepath.Join(homeDir, ".village_quest")
-	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
-		log.Fatal("Failed to create application directory:", err)
-	}
-
-	dbPath := filepath.Join(appDir, "village_quest.db")
+	dbPath := filepath.Join(homeDir, "data.db")
 	log.Println("Database path:", dbPath)
 
 	Migrate(dbPath)

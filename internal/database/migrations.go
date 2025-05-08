@@ -16,10 +16,12 @@ func Migrate(dbPath string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	gameTable(db)
+
 	if err := db.Close(); err != nil {
 		log.Fatalf("Failed to close DB file: %v", err)
 	}
-	gameTable(db)
 }
 
 func createNewDB(dbPath string) {
