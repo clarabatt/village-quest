@@ -1,4 +1,4 @@
-module villageQuest
+module villagequest
 
 go 1.15
 

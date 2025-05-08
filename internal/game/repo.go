@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"villageQuest/internal/database"
+	"villagequest/internal/database"
 
 	"github.com/google/uuid"
 )

@@ -3,8 +3,8 @@ package gameplay
 import (
 	"fmt"
 	"log"
-	"villageQuest/internal/database"
-	"villageQuest/internal/game"
+	"villagequest/internal/database"
+	"villagequest/internal/game"
 )
 
 func Execute() {
