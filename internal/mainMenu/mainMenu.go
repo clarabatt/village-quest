@@ -5,6 +5,7 @@ import (
 	"log"
 	"villagequest/internal/database"
 	"villagequest/internal/game"
+	"villagequest/internal/gameplay"
 	"villagequest/internal/menu"
 )
 
@@ -59,7 +60,9 @@ func (m *MainMenu) LoadGame() {
 				fmt.Printf("Loading game for %s...\n", game.PlayersName())
 				fmt.Println("Press Enter to continue...")
 				fmt.Scanln()
-				// TODO: Pass game to the next phase (e.g., game loop)
+
+				gameLoop := gameplay.NewGameLoop(&game)
+				gameLoop.Run()
 			},
 			i+1,
 		)

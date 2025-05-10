@@ -9,6 +9,7 @@ type Game struct {
 	number      int
 	daysPlayed  int
 	playersName string
+	isOver      bool
 }
 
 func NewGame(num int, name string) *Game {
@@ -43,4 +44,12 @@ func (g *Game) DaysPlayed() int {
 
 func (g *Game) PlayersName() string {
 	return g.playersName
+}
+
+func (g *Game) SetOver(isOver bool) {
+	g.isOver = isOver
+}
+
+func (g *Game) IsOver() bool {
+	return g.isOver
 }
