@@ -1,9 +1,9 @@
 package main
 
 import (
-	gameplay "villagequest/internal/gamemenu"
+	mainMenu "villagequest/internal/mainMenu"
 )
 
 func main() {
-	gameplay.Execute()
+	mainMenu.Execute()
 }
