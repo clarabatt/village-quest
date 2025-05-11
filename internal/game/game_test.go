@@ -1,8 +1,9 @@
 package game
 
 import (
-	"github.com/google/uuid"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 var A_GAME_ID = uuid.New()
@@ -10,7 +11,7 @@ var A_GAME_DAYS_PLAYED = 40
 var A_GAME_NUMBER = 77
 var A_PLAYER_NAME = "John Doe"
 
-func TestGame(t *testing.T) {
+func TestCreateGame(t *testing.T) {
 	t.Run("New Game Creation", func(t *testing.T) {
 		game := NewGame(A_GAME_NUMBER, A_PLAYER_NAME)
 
@@ -24,7 +25,8 @@ func TestGame(t *testing.T) {
 			t.Errorf("Expected game.daysPlayed to be 0, got %d", game.daysPlayed)
 		}
 	})
-
+}
+func TestLoadGame(t *testing.T) {
 	t.Run("Load Existing Game", func(t *testing.T) {
 		game := LoadGame(A_GAME_ID, A_GAME_NUMBER, A_GAME_DAYS_PLAYED, A_PLAYER_NAME)
 
@@ -41,7 +43,8 @@ func TestGame(t *testing.T) {
 			t.Errorf("Expected game.daysPlayed to be %d, got %d", A_GAME_DAYS_PLAYED, game.daysPlayed)
 		}
 	})
-
+}
+func TestGameGetters(t *testing.T) {
 	t.Run("Getters", func(t *testing.T) {
 		game := LoadGame(A_GAME_ID, A_GAME_NUMBER, A_GAME_DAYS_PLAYED, A_PLAYER_NAME)
 
