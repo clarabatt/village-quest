@@ -24,21 +24,21 @@ func NewGameRepository(connection database.DBAdapter) GameRepository {
 	}
 }
 
-func (g *gameRepository) Insert(game Game) error {
+func (r *gameRepository) Insert(game Game) error {
 	query := `
 		INSERT INTO game (id, number, max_days_played, players_name)
 		VALUES (?, ?, ?, ?)
 	`
-	_, err := g.connection.Execute(query, game.Id(), game.Number(), game.DaysPlayed(), game.PlayersName())
+	_, err := r.connection.Execute(query, game.Id(), game.Number(), game.DaysPlayed(), game.PlayersName())
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (g *gameRepository) GetAll() ([]Game, error) {
+func (r *gameRepository) GetAll() ([]Game, error) {
 	query := `SELECT id, number, max_days_played, players_name FROM game`
-	result, err := g.connection.Query(query)
+	result, err := r.connection.Query(query)
 	if err != nil {
 		return nil, err
 	}

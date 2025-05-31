@@ -5,7 +5,7 @@ import (
 )
 
 type GameStarterUseCase struct {
-	gameRepo  GameRepository
+	repo      GameRepository
 	gamesList []Game
 }
 
@@ -17,7 +17,7 @@ type GameStarter interface {
 func NewGameStarter(gameRepo GameRepository) *GameStarterUseCase {
 	games, _ := gameRepo.GetAll()
 	return &GameStarterUseCase{
-		gameRepo:  gameRepo,
+		repo:      gameRepo,
 		gamesList: games,
 	}
 }
@@ -26,7 +26,7 @@ func (s *GameStarterUseCase) Create(playerName string) (Game, error) {
 	var err error
 	nextGameNumber := len(s.gamesList) + 1
 	gameInstance := NewGame(nextGameNumber, playerName)
-	if err := s.gameRepo.Insert(*gameInstance); err != nil {
+	if err := s.repo.Insert(*gameInstance); err != nil {
 		log.Print("Error inserting a game instance")
 	}
 	s.loadGamesList()
@@ -38,6 +38,6 @@ func (s *GameStarterUseCase) GetAllGames() ([]Game, error) {
 }
 
 func (s *GameStarterUseCase) loadGamesList() {
-	games, _ := s.gameRepo.GetAll()
+	games, _ := s.repo.GetAll()
 	s.gamesList = games
 }
