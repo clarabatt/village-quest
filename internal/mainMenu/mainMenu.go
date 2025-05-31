@@ -22,7 +22,9 @@ func Execute() {
 }
 
 func RunMainMenu(starterService *game.GameStarterUseCase) {
-	m := menu.NewMenu("Welcome to Village Quest!", nil)
+	DisplayWelcome()
+	fmt.Scanln()
+	m := menu.NewMenu("Main menu", nil)
 	mainMenu := &MainMenu{StarterService: starterService}
 	m.AddItem("New game", mainMenu.NewGame, 1)
 	m.AddItem("Load game", mainMenu.LoadGame, 2)
@@ -78,4 +80,19 @@ func getPlayerName() string {
 		return ""
 	}
 	return playerName
+}
+
+func DisplayWelcome() {
+	fmt.Println("╔═══════════════════════════════════════════════════════════════╗")
+	fmt.Println("║                                                               ║")
+	fmt.Println("║                     🏘️  VILLAGE QUEST 🏘️                        ║")
+	fmt.Println("║                                                               ║")
+	fmt.Println("║              Build your settlement from scratch!              ║")
+	fmt.Println("║                                                               ║")
+	fmt.Println("║  🎯 Goal: Transform your small village into a thriving city   ║")
+	fmt.Println("║  ⏰ Each turn = 1 year, 2 actions per turn                    ║")
+	fmt.Println("║  📊 Manage resources, build structures, handle events         ║")
+	fmt.Println("║                                                               ║")
+	fmt.Println("╚═══════════════════════════════════════════════════════════════╝")
+	fmt.Print("\nPress Enter to start your village...")
 }

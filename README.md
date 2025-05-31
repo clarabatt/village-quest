@@ -6,7 +6,7 @@ Install Go: https://golang.org/doc/install
 Install Sqlite3: https://www.sqlite.org/download.html
 
 ```bash
-    go run main.go
+    go run cmd/villagequest/main.go
 ```
 
 ```bash
