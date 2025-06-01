@@ -8,7 +8,7 @@ import (
 
 var (
 	ErrGameNotFound    = errors.New("game not found")
-	ErrInvalidGameData = errors.New("invalid game data provided")
+	ErrEmptyId         = errors.New("game ID cannot be empty")
 	ErrPlayerNameEmpty = errors.New("player name cannot be empty")
 )
 
@@ -61,12 +61,12 @@ func (s *gameService) GetAllGames() ([]Game, error) {
 
 func (s *gameService) DeleteGame(gameId string) error {
 	if gameId == "" {
-		return errors.New("game ID cannot be empty")
+		return ErrEmptyId
 	}
 
 	_, err := s.repository.GetById(gameId)
 	if err != nil {
-		return fmt.Errorf("game not found: %w", err)
+		return ErrGameNotFound
 	}
 
 	err = s.repository.Delete(gameId)
