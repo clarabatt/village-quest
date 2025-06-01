@@ -1,0 +1,79 @@
+package game
+
+import (
+	"errors"
+	"fmt"
+	"log"
+)
+
+var (
+	ErrGameNotFound    = errors.New("game not found")
+	ErrInvalidGameData = errors.New("invalid game data provided")
+	ErrPlayerNameEmpty = errors.New("player name cannot be empty")
+)
+
+type gameService struct {
+	repository GameRepository
+}
+
+type GameService interface {
+	CreateNewGame(playerName string) (*Game, error)
+	GetAllGames() ([]Game, error)
+	DeleteGame(gameId string) error
+}
+
+func NewGameService(repository GameRepository) GameService {
+	return &gameService{
+		repository: repository,
+	}
+}
+
+func (s *gameService) CreateNewGame(playerName string) (*Game, error) {
+	if playerName == "" {
+		return nil, ErrPlayerNameEmpty
+	}
+
+	existingGames, err := s.repository.GetAll()
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch existing games: %w", err)
+	}
+
+	nextGameNumber := len(existingGames) + 1
+
+	gameInstance := NewGame(nextGameNumber, playerName)
+
+	if err := s.repository.Insert(*gameInstance); err != nil {
+		return nil, fmt.Errorf("failed to create game: %w", err)
+	}
+
+	log.Printf("Created new game for player: %s (Game #%d)", playerName, nextGameNumber)
+	return gameInstance, nil
+}
+
+func (s *gameService) GetAllGames() ([]Game, error) {
+	games, err := s.repository.GetAll()
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch games: %w", err)
+	}
+
+	return games, nil
+}
+
+func (s *gameService) DeleteGame(gameId string) error {
+	if gameId == "" {
+		return errors.New("game ID cannot be empty")
+	}
+
+	_, err := s.repository.GetById(gameId)
+	if err != nil {
+		return fmt.Errorf("game not found: %w", err)
+	}
+
+	err = s.repository.Delete(gameId)
+	if err != nil {
+		return fmt.Errorf("failed to delete game: %w", err)
+	}
+
+	log.Printf("Deleted game with ID: %s", gameId)
+	return nil
+}

@@ -10,44 +10,67 @@ import (
 )
 
 type MainMenu struct {
-	StarterService *game.GameStarterUseCase
+	GameService game.GameService
 }
 
 func Execute() {
 	dbConnection := database.NewSqliteAdapter()
 	gameRepo := game.NewGameRepository(dbConnection)
-	gameStarterService := game.NewGameStarter(gameRepo)
+	gameService := game.NewGameService(gameRepo)
 
-	RunMainMenu(gameStarterService)
+	RunMainMenu(gameService)
 }
 
-func RunMainMenu(starterService *game.GameStarterUseCase) {
+func RunMainMenu(gameService game.GameService) {
 	DisplayWelcome()
 	fmt.Scanln()
+
 	m := menu.NewMenu("Main menu", nil)
-	mainMenu := &MainMenu{StarterService: starterService}
+	mainMenu := &MainMenu{GameService: gameService}
+
 	m.AddItem("New game", mainMenu.NewGame, 1)
 	m.AddItem("Load game", mainMenu.LoadGame, 2)
+	m.AddItem("Delete game", mainMenu.DeleteGame, 3)
 
 	m.Show()
 }
 
 func (m *MainMenu) NewGame() {
 	playerName := getPlayerName()
-	if _, err := m.StarterService.Create(playerName); err != nil {
-		log.Println("Error creating game:", err)
+	if playerName == "" {
+		fmt.Println("Invalid player name. Please try again.")
+		fmt.Scanln()
+		return
 	}
+
+	gameInstance, err := m.GameService.CreateNewGame(playerName)
+	if err != nil {
+		log.Printf("Error creating game: %v", err)
+		fmt.Printf("Failed to create game: %v\n", err)
+		fmt.Scanln()
+		return
+	}
+
+	fmt.Printf("Game created successfully for %s!\n", gameInstance.PlayersName())
+	fmt.Println("Starting game...")
+	fmt.Scanln()
+
+	gameLoop := gameplay.NewGameLoop(gameInstance)
+	gameLoop.Run()
 }
 
 func (m *MainMenu) LoadGame() {
-	games, err := m.StarterService.GetAllGames()
+	games, err := m.GameService.GetAllGames()
 	if err != nil {
-		log.Println("Error loading games:", err)
+		log.Printf("Error loading games: %v", err)
+		fmt.Printf("Failed to load games: %v\n", err)
+		fmt.Scanln()
 		return
 	}
 
 	if len(games) == 0 {
-		fmt.Println("No saved games.")
+		fmt.Println("No saved games found.")
+		fmt.Println("Press Enter to continue...")
 		fmt.Scanln()
 		return
 	}
@@ -56,10 +79,10 @@ func (m *MainMenu) LoadGame() {
 
 	for i, g := range games {
 		game := g
-		_ = loadGameMenu.AddItem(
-			fmt.Sprintf("%s", game.PlayersName()),
+		loadGameMenu.AddItem(
+			fmt.Sprintf("Game #%d - %s", game.Number(), game.PlayersName()),
 			func() {
-				fmt.Printf("Loading game for %s...\n", game.PlayersName())
+				fmt.Printf("Loading game #%d for %s...\n", game.Number(), game.PlayersName())
 				fmt.Println("Press Enter to continue...")
 				fmt.Scanln()
 
@@ -70,6 +93,52 @@ func (m *MainMenu) LoadGame() {
 		)
 	}
 	loadGameMenu.Show()
+}
+
+func (m *MainMenu) DeleteGame() {
+	games, err := m.GameService.GetAllGames()
+	if err != nil {
+		log.Printf("Error loading games: %v", err)
+		fmt.Printf("Failed to load games: %v\n", err)
+		fmt.Scanln()
+		return
+	}
+
+	if len(games) == 0 {
+		fmt.Println("No saved games to delete.")
+		fmt.Println("Press Enter to continue...")
+		fmt.Scanln()
+		return
+	}
+
+	deleteGameMenu := menu.NewMenu("Delete Game", nil)
+
+	for i, g := range games {
+		game := g
+		deleteGameMenu.AddItem(
+			fmt.Sprintf("Delete Game #%d - %s", game.Number(), game.PlayersName()),
+			func() {
+				fmt.Printf("Are you sure you want to delete game for %s? (y/n): ", game.PlayersName())
+				var response string
+				fmt.Scanln(&response)
+
+				if response == "y" || response == "Y" {
+					if err := m.GameService.DeleteGame(game.Id().String()); err != nil {
+						fmt.Printf("Failed to delete game: %v\n", err)
+					} else {
+						fmt.Printf("Game for %s deleted successfully!\n", game.PlayersName())
+					}
+				} else {
+					fmt.Println("Delete cancelled.")
+				}
+				fmt.Println("Press Enter to continue...")
+				fmt.Scanln()
+			},
+			i+1,
+		)
+	}
+
+	deleteGameMenu.Show()
 }
 
 func getPlayerName() string {

@@ -12,6 +12,9 @@ import (
 type GameRepository interface {
 	Insert(Game) error
 	GetAll() ([]Game, error)
+	GetById(id string) (Game, error)
+	Update(game Game) error
+	Delete(id string) error
 }
 
 type gameRepository struct {
@@ -68,4 +71,43 @@ func (r *gameRepository) GetAll() ([]Game, error) {
 	}
 
 	return games, nil
+}
+
+func (r *gameRepository) GetById(id string) (Game, error) {
+	query := `SELECT id, number, max_days_played, players_name FROM game WHERE id = ?`
+	result, err := r.connection.Query(query, id)
+	if err != nil {
+		return Game{}, err
+	}
+	defer result.Rows.Close()
+
+	if !result.Rows.Next() {
+		return Game{}, sql.ErrNoRows
+	}
+
+	var gameId, playersName string
+	var number, maxDaysPlayed int
+
+	err = result.Rows.Scan(&gameId, &number, &maxDaysPlayed, &playersName)
+	if err != nil {
+		return Game{}, err
+	}
+
+	return *LoadGame(uuid.MustParse(gameId), number, maxDaysPlayed, playersName), nil
+}
+
+func (r *gameRepository) Update(game Game) error {
+	query := `
+		UPDATE game 
+		SET number = ?, max_days_played = ?, players_name = ?
+		WHERE id = ?
+	`
+	_, err := r.connection.Execute(query, game.Number(), game.DaysPlayed(), game.PlayersName(), game.Id())
+	return err
+}
+
+func (r *gameRepository) Delete(id string) error {
+	query := `DELETE FROM game WHERE id = ?`
+	_, err := r.connection.Execute(query, id)
+	return err
 }
