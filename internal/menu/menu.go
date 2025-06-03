@@ -1,8 +1,12 @@
 package menu
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
 	"sort"
+	"strings"
 )
 
 type MenuItem struct {
@@ -49,24 +53,42 @@ func (m *Menu) AddItem(name string, action func(), order int) error {
 }
 
 func (m *Menu) Show() {
-	var selected int
+	scanner := bufio.NewScanner(os.Stdin)
+
 	for {
 		clearScreen()
 		mappedOptions := m.printMenu()
-		if _, err := fmt.Scanln(&selected); err != nil {
+
+		if !scanner.Scan() {
+			if err := scanner.Err(); err != nil {
+				log.Printf("Input error: %v", err)
+			}
+			return
+		}
+
+		input := strings.TrimSpace(scanner.Text())
+		if input == "" {
 			fmt.Println(invalidOptionMessage)
-			fmt.Scanln()
 			continue
 		}
+
+		var selected int
+		if _, err := fmt.Sscanf(input, "%d", &selected); err != nil {
+			fmt.Println(invalidOptionMessage)
+			WaitForEnter()
+			continue
+		}
+
 		if selected == m.ExitOption {
 			fmt.Println("Exiting...")
 			return
 		}
+
 		if item, ok := mappedOptions[selected]; ok {
 			item.Action()
 		} else {
 			fmt.Println(invalidOptionMessage)
-			fmt.Scanln()
+			WaitForEnter()
 			continue
 		}
 	}
@@ -96,4 +118,22 @@ func (m *Menu) orderedOptions() []MenuItem {
 
 func clearScreen() {
 	fmt.Print("\033[H\033[2J")
+}
+
+func GetConfirmation(prompt string) bool {
+	fmt.Print(prompt)
+
+	scanner := bufio.NewScanner(os.Stdin)
+	if !scanner.Scan() {
+		return false
+	}
+
+	response := strings.ToLower(strings.TrimSpace(scanner.Text()))
+	return response == "y" || response == "yes"
+}
+
+func WaitForEnter() {
+	fmt.Println("Press Enter to continue...")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
 }

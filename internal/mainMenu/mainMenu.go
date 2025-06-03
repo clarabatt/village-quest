@@ -1,8 +1,11 @@
 package mainMenu
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 	"villagequest/internal/database"
 	"villagequest/internal/game"
 	"villagequest/internal/gameplay"
@@ -28,7 +31,7 @@ func Execute() {
 
 func RunMainMenu(gameService game.GameService) {
 	DisplayWelcome()
-	fmt.Scanln()
+	menu.WaitForEnter()
 
 	m := menu.NewMenu("Main menu", nil)
 	mainMenu := &MainMenu{GameService: gameService}
@@ -44,7 +47,7 @@ func (m *MainMenu) NewGame() {
 	playerName := getPlayerName()
 	if playerName == "" {
 		fmt.Println("Invalid player name. Please try again.")
-		fmt.Scanln()
+		menu.WaitForEnter()
 		return
 	}
 
@@ -52,13 +55,13 @@ func (m *MainMenu) NewGame() {
 	if err != nil {
 		log.Printf("Error creating game: %v", err)
 		fmt.Printf("Failed to create game: %v\n", err)
-		fmt.Scanln()
+		menu.WaitForEnter()
 		return
 	}
 
 	fmt.Printf("Game created successfully for %s!\n", gameInstance.PlayersName())
 	fmt.Println("Starting game...")
-	fmt.Scanln()
+	menu.WaitForEnter()
 
 	gameLoop := gameplay.NewGameLoop(gameInstance)
 	gameLoop.Run()
@@ -69,14 +72,13 @@ func (m *MainMenu) LoadGame() {
 	if err != nil {
 		log.Printf("Error loading games: %v", err)
 		fmt.Printf("Failed to load games: %v\n", err)
-		fmt.Scanln()
+		menu.WaitForEnter()
 		return
 	}
 
 	if len(games) == 0 {
 		fmt.Println("No saved games found.")
-		fmt.Println("Press Enter to continue...")
-		fmt.Scanln()
+		menu.WaitForEnter()
 		return
 	}
 
@@ -88,8 +90,7 @@ func (m *MainMenu) LoadGame() {
 			fmt.Sprintf("Game #%d - %s", game.Number(), game.PlayersName()),
 			func() {
 				fmt.Printf("Loading game #%d for %s...\n", game.Number(), game.PlayersName())
-				fmt.Println("Press Enter to continue...")
-				fmt.Scanln()
+				menu.WaitForEnter()
 
 				gameLoop := gameplay.NewGameLoop(&game)
 				gameLoop.Run()
@@ -105,14 +106,13 @@ func (m *MainMenu) DeleteGame() {
 	if err != nil {
 		log.Printf("Error loading games: %v", err)
 		fmt.Printf("Failed to load games: %v\n", err)
-		fmt.Scanln()
+		menu.WaitForEnter()
 		return
 	}
 
 	if len(games) == 0 {
 		fmt.Println("No saved games to delete.")
-		fmt.Println("Press Enter to continue...")
-		fmt.Scanln()
+		menu.WaitForEnter()
 		return
 	}
 
@@ -123,11 +123,9 @@ func (m *MainMenu) DeleteGame() {
 		deleteGameMenu.AddItem(
 			fmt.Sprintf("Delete Game #%d - %s", game.Number(), game.PlayersName()),
 			func() {
-				fmt.Printf("Are you sure you want to delete game for %s? (y/n): ", game.PlayersName())
-				var response string
-				fmt.Scanln(&response)
+				prompt := fmt.Sprintf("Are you sure you want to delete game for %s? (y/n): ", game.PlayersName())
 
-				if response == "y" || response == "Y" {
+				if menu.GetConfirmation(prompt) {
 					if err := m.GameService.DeleteGame(game.Id()); err != nil {
 						fmt.Printf("Failed to delete game: %v\n", err)
 					} else {
@@ -136,8 +134,7 @@ func (m *MainMenu) DeleteGame() {
 				} else {
 					fmt.Println("Delete cancelled.")
 				}
-				fmt.Println("Press Enter to continue...")
-				fmt.Scanln()
+				menu.WaitForEnter()
 			},
 			i+1,
 		)
@@ -147,13 +144,37 @@ func (m *MainMenu) DeleteGame() {
 }
 
 func getPlayerName() string {
-	var playerName string
-	fmt.Print("Enter your name: ")
-	if _, err := fmt.Scanln(&playerName); err != nil {
-		log.Println("Error reading input:", err)
-		return ""
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		fmt.Print("Enter your name: ")
+
+		if !scanner.Scan() {
+			if err := scanner.Err(); err != nil {
+				log.Println("Error reading input:", err)
+			}
+			return ""
+		}
+
+		playerName := strings.TrimSpace(scanner.Text())
+
+		if playerName == "" {
+			fmt.Println("Name cannot be empty. Please try again.")
+			continue
+		}
+
+		if len(playerName) > 50 {
+			fmt.Println("Name too long (max 50 characters). Please try again.")
+			continue
+		}
+
+		if strings.ContainsAny(playerName, "\n\r\t") {
+			fmt.Println("Name cannot contain special characters. Please try again.")
+			continue
+		}
+
+		return playerName
 	}
-	return playerName
 }
 
 func DisplayWelcome() {
