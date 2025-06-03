@@ -19,6 +19,8 @@ type Menu struct {
 	Title      string
 	Items      []MenuItem
 	ExitOption int
+	ExitText   string
+	Parent     *Menu
 }
 
 const defaultExitOption = 0
@@ -32,7 +34,15 @@ func NewMenu(title string, exitOption *int) *Menu {
 	return &Menu{
 		Title:      title,
 		ExitOption: exitValue,
+		ExitText:   "Exit",
 	}
+}
+
+func NewSubMenu(title string, parent *Menu, exitOption *int) *Menu {
+	menu := NewMenu(title, exitOption)
+	menu.Parent = parent
+	menu.ExitText = "Back"
+	return menu
 }
 
 func (m *Menu) AddItem(name string, action func(), order int) error {
@@ -97,12 +107,18 @@ func (m *Menu) Show() {
 func (m *Menu) printMenu() map[int]MenuItem {
 	sortedOptions := m.orderedOptions()
 	mapped := make(map[int]MenuItem)
+
+	if m.Parent != nil {
+		fmt.Printf("← %s\n", m.Parent.Title)
+	}
+
 	fmt.Printf("=== %s ===\n", m.Title)
 	for _, item := range sortedOptions {
 		fmt.Printf("%d. %s\n", item.Order, item.Name)
 		mapped[item.Order] = item
 	}
-	fmt.Printf("%d. Exit\n", m.ExitOption)
+
+	fmt.Printf("%d. %s\n", m.ExitOption, m.ExitText)
 	fmt.Print("> ")
 	return mapped
 }

@@ -31,7 +31,6 @@ func Execute() {
 
 func RunMainMenu(gameService game.GameService) {
 	DisplayWelcome()
-	menu.WaitForEnter()
 
 	m := menu.NewMenu("Main menu", nil)
 	mainMenu := &MainMenu{GameService: gameService}
@@ -82,7 +81,8 @@ func (m *MainMenu) LoadGame() {
 		return
 	}
 
-	loadGameMenu := menu.NewMenu("Load Saved Game", nil)
+	mainMenuRef := menu.NewMenu("Main menu", nil)
+	loadGameMenu := menu.NewSubMenu("Load Saved Game", mainMenuRef, nil)
 
 	for i, g := range games {
 		game := g
@@ -116,7 +116,8 @@ func (m *MainMenu) DeleteGame() {
 		return
 	}
 
-	deleteGameMenu := menu.NewMenu("Delete Game", nil)
+	mainMenuRef := menu.NewMenu("Main menu", nil)
+	deleteGameMenu := menu.NewSubMenu("Delete Game", mainMenuRef, nil)
 
 	for i, g := range games {
 		game := g
@@ -189,5 +190,5 @@ func DisplayWelcome() {
 	fmt.Println("║  📊 Manage resources, build structures, handle events         ║")
 	fmt.Println("║                                                               ║")
 	fmt.Println("╚═══════════════════════════════════════════════════════════════╝")
-	fmt.Print("\nPress Enter to start your village...")
+	menu.WaitForEnter()
 }
