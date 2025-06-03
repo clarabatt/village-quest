@@ -14,8 +14,10 @@ CREATE TABLE IF NOT EXISTS turn_history (
 
 CREATE INDEX IF NOT EXISTS idx_turn_history_game_id ON turn_history(game_id);
 CREATE INDEX IF NOT EXISTS idx_turn_history_number ON turn_history(game_id, number);
+CREATE INDEX IF NOT EXISTS idx_turn_history_created_at ON turn_history(created_at);
 
 -- +goose Down
+DROP INDEX IF EXISTS idx_turn_history_created_at;
 DROP INDEX IF EXISTS idx_turn_history_number;
 DROP INDEX IF EXISTS idx_turn_history_game_id;
 DROP TABLE IF EXISTS turn_history;

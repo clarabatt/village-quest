@@ -12,8 +12,10 @@ CREATE TABLE IF NOT EXISTS game (
 
 CREATE INDEX IF NOT EXISTS idx_game_number ON game(number);
 CREATE INDEX IF NOT EXISTS idx_game_players_name ON game(players_name);
+CREATE INDEX IF NOT EXISTS idx_game_created_at ON game(created_at);
 
 -- +goose Down
+DROP INDEX IF EXISTS idx_game_created_at;
 DROP INDEX IF EXISTS idx_game_players_name;
 DROP INDEX IF EXISTS idx_game_number;
 DROP TABLE IF EXISTS game;
