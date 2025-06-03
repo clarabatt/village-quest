@@ -7,25 +7,16 @@ import (
 	"os"
 	"path/filepath"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/pressly/goose/v3"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-type SQLiteDB struct {
-	connection *sql.DB
+type GormDB struct {
+	DB *gorm.DB
 }
 
-type QueryResult struct {
-	Rows *sql.Rows
-}
-
-type DBAdapter interface {
-	Query(statement string, params ...interface{}) (QueryResult, error)
-	Execute(statement string, params ...interface{}) (sql.Result, error)
-	Close() error
-}
-
-func NewSqliteAdapter() *SQLiteDB {
+func NewGormDB() *GormDB {
 	homeDir, err := os.Getwd()
 	fmt.Printf("Home Dir: %v\n", homeDir)
 	if err != nil {
@@ -40,47 +31,35 @@ func NewSqliteAdapter() *SQLiteDB {
 		createNewDB(dbPath)
 	}
 
-	db, err := sql.Open("sqlite3", dbPath)
+	gormConfig := &gorm.Config{}
+
+	db, err := gorm.Open(sqlite.Open(dbPath), gormConfig)
 	if err != nil {
 		log.Fatal("Failed to open database:", err)
 	}
-	if err = db.Ping(); err != nil {
-		log.Fatal("Failed to connect to the database:", err)
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal("Failed to get sql.DB:", err)
 	}
 
-	goose.SetDialect("sqlite3")
-
 	migrationsDir := filepath.Join(homeDir, "internal/database/migrations")
-	if err := runMigrations(db, migrationsDir); err != nil {
+	if err := runMigrations(sqlDB, migrationsDir); err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 
 	log.Println("Database connection established at:", dbPath)
 
-	return &SQLiteDB{
-		connection: db,
+	return &GormDB{
+		DB: db,
 	}
 }
 
-func (s *SQLiteDB) Execute(statement string, params ...interface{}) (sql.Result, error) {
-	result, err := s.connection.Exec(statement, params...)
+func (g *GormDB) Close() error {
+	sqlDB, err := g.DB.DB()
 	if err != nil {
-		log.Panicf("Error executing statement: %s, params: %v, error: %s", statement, params, err)
-		return nil, err
+		return err
 	}
-	return result, err
-}
-
-func (s *SQLiteDB) Query(statement string, params ...interface{}) (QueryResult, error) {
-	rows, err := s.connection.Query(statement, params...)
-	if err != nil {
-		log.Panicf("Error executing query: %s", err)
-	}
-	return QueryResult{rows}, err
-}
-
-func (s *SQLiteDB) Close() error {
-	return s.connection.Close()
+	return sqlDB.Close()
 }
 
 func createNewDB(dbPath string) {
@@ -101,6 +80,8 @@ func runMigrations(db *sql.DB, migrationsDir string) error {
 		}
 		log.Printf("Created migrations directory: %s", migrationsDir)
 	}
+
+	goose.SetDialect("sqlite3")
 
 	if err := goose.Up(db, migrationsDir); err != nil {
 		return fmt.Errorf("failed to apply migrations: %w", err)

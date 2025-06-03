@@ -7,7 +7,7 @@ import (
 type Game struct {
 	id          uuid.UUID
 	number      int
-	daysPlayed  int
+	turnsPlayed int
 	playersName string
 	isOver      bool
 }
@@ -16,16 +16,16 @@ func NewGame(num int, name string) *Game {
 	return &Game{
 		id:          uuid.New(),
 		number:      num,
-		daysPlayed:  0,
+		turnsPlayed: 0,
 		playersName: name,
 	}
 }
 
-func LoadGame(existentId uuid.UUID, num int, days int, name string) *Game {
+func LoadGame(existentId uuid.UUID, num int, turns int, name string) *Game {
 	return &Game{
 		id:          existentId,
 		number:      num,
-		daysPlayed:  days,
+		turnsPlayed: turns,
 		playersName: name,
 	}
 }
@@ -38,8 +38,8 @@ func (g *Game) Number() int {
 	return g.number
 }
 
-func (g *Game) DaysPlayed() int {
-	return g.daysPlayed
+func (g *Game) TurnsPlayed() int {
+	return g.turnsPlayed
 }
 
 func (g *Game) PlayersName() string {

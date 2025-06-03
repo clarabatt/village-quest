@@ -7,7 +7,7 @@ import (
 )
 
 var A_GAME_ID = uuid.New()
-var A_GAME_DAYS_PLAYED = 40
+var A_GAME_TURNS_PLAYED = 40
 var A_GAME_NUMBER = 77
 var A_PLAYER_NAME = "John Doe"
 
@@ -21,14 +21,14 @@ func TestCreateGame(t *testing.T) {
 		if game.playersName != A_PLAYER_NAME {
 			t.Errorf("Expected game.playersName to be %s, got %s", A_PLAYER_NAME, game.playersName)
 		}
-		if game.daysPlayed != 0 {
-			t.Errorf("Expected game.daysPlayed to be 0, got %d", game.daysPlayed)
+		if game.turnsPlayed != 0 {
+			t.Errorf("Expected game.turnsPlayed to be 0, got %d", game.turnsPlayed)
 		}
 	})
 }
 func TestLoadGame(t *testing.T) {
 	t.Run("Load Existing Game", func(t *testing.T) {
-		game := LoadGame(A_GAME_ID, A_GAME_NUMBER, A_GAME_DAYS_PLAYED, A_PLAYER_NAME)
+		game := LoadGame(A_GAME_ID, A_GAME_NUMBER, A_GAME_TURNS_PLAYED, A_PLAYER_NAME)
 
 		if game.id != A_GAME_ID {
 			t.Errorf("Expected game.id to be %d, got %d", A_GAME_ID, game.id)
@@ -39,14 +39,14 @@ func TestLoadGame(t *testing.T) {
 		if game.playersName != A_PLAYER_NAME {
 			t.Errorf("Expected game.playersName to be %s, got %s", A_PLAYER_NAME, game.playersName)
 		}
-		if game.daysPlayed != A_GAME_DAYS_PLAYED {
-			t.Errorf("Expected game.daysPlayed to be %d, got %d", A_GAME_DAYS_PLAYED, game.daysPlayed)
+		if game.turnsPlayed != A_GAME_TURNS_PLAYED {
+			t.Errorf("Expected game.turnsPlayed to be %d, got %d", A_GAME_TURNS_PLAYED, game.turnsPlayed)
 		}
 	})
 }
 func TestGameGetters(t *testing.T) {
 	t.Run("Getters", func(t *testing.T) {
-		game := LoadGame(A_GAME_ID, A_GAME_NUMBER, A_GAME_DAYS_PLAYED, A_PLAYER_NAME)
+		game := LoadGame(A_GAME_ID, A_GAME_NUMBER, A_GAME_TURNS_PLAYED, A_PLAYER_NAME)
 
 		if game.Id() != A_GAME_ID {
 			t.Errorf("Expected game.id to be %v, got %v", A_GAME_ID, game.Id())
@@ -57,8 +57,8 @@ func TestGameGetters(t *testing.T) {
 		if game.PlayersName() != A_PLAYER_NAME {
 			t.Errorf("Expected game.playersName to be %s, got %s", A_PLAYER_NAME, game.PlayersName())
 		}
-		if game.DaysPlayed() != A_GAME_DAYS_PLAYED {
-			t.Errorf("Expected game.daysPlayed to be %d, got %d", A_GAME_DAYS_PLAYED, game.DaysPlayed())
+		if game.TurnsPlayed() != A_GAME_TURNS_PLAYED {
+			t.Errorf("Expected game.turnsPlayed to be %d, got %d", A_GAME_TURNS_PLAYED, game.TurnsPlayed())
 		}
 	})
 }

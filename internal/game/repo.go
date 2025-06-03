@@ -1,113 +1,123 @@
 package game
 
 import (
-	"database/sql"
+	"errors"
 	"fmt"
-	"log"
-	"villagequest/internal/database"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type GameRepository interface {
-	Insert(Game) error
+	Create(game *Game) (*Game, error)
+	GetByID(id uuid.UUID) (*Game, error)
+	GetByNumber(number int) (*Game, error)
+	Update(game *Game) (*Game, error)
+	Delete(id uuid.UUID) error
 	GetAll() ([]Game, error)
-	GetById(id string) (Game, error)
-	Update(game Game) error
-	Delete(id string) error
 }
 
 type gameRepository struct {
-	connection database.DBAdapter
+	db *gorm.DB
 }
 
-func NewGameRepository(connection database.DBAdapter) GameRepository {
+func NewGameRepository(db *gorm.DB) GameRepository {
 	return &gameRepository{
-		connection: connection,
+		db: db,
 	}
 }
 
-func (r *gameRepository) Insert(game Game) error {
-	query := `
-		INSERT INTO game (id, number, max_days_played, players_name)
-		VALUES (?, ?, ?, ?)
-	`
-	_, err := r.connection.Execute(query, game.Id(), game.Number(), game.DaysPlayed(), game.PlayersName())
-	if err != nil {
-		return err
+func (r *gameRepository) Create(game *Game) (*Game, error) {
+	model := gameToModel(game)
+
+	if err := r.db.Create(model).Error; err != nil {
+		return nil, fmt.Errorf("failed to create game: %w", err)
 	}
+
+	result := modelToGame(model)
+	return result, nil
+}
+
+func (r *gameRepository) GetByID(id uuid.UUID) (*Game, error) {
+	var model GameModel
+
+	err := r.db.Where("id = ?", id).First(&model).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("game not found: id=%s", id)
+		}
+		return nil, fmt.Errorf("failed to get game by ID: %w", err)
+	}
+
+	game := modelToGame(&model)
+	return game, nil
+}
+
+func (r *gameRepository) GetByNumber(number int) (*Game, error) {
+	var model GameModel
+
+	err := r.db.Where("number = ?", number).First(&model).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("game not found: number=%d", number)
+		}
+		return nil, fmt.Errorf("failed to get game by number: %w", err)
+	}
+
+	game := modelToGame(&model)
+	return game, nil
+}
+
+func (r *gameRepository) Update(game *Game) (*Game, error) {
+	model := gameToModel(game)
+
+	result := r.db.Model(&GameModel{}).
+		Where("id = ?", game.id).
+		Updates(model)
+
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to update game: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, fmt.Errorf("game not found: id=%s", game.id)
+	}
+
+	var updatedModel GameModel
+	if err := r.db.Where("id = ?", game.id).First(&updatedModel).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch updated game: %w", err)
+	}
+
+	updatedGame := modelToGame(&updatedModel)
+	return updatedGame, nil
+}
+
+func (r *gameRepository) Delete(id uuid.UUID) error {
+	result := r.db.Delete(&GameModel{}, "id = ?", id)
+
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete game: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("game not found: id=%s", id)
+	}
+
 	return nil
 }
 
 func (r *gameRepository) GetAll() ([]Game, error) {
-	query := `SELECT id, number, max_days_played, players_name FROM game`
-	result, err := r.connection.Query(query)
+	var models []GameModel
+
+	err := r.db.Order("created_at ASC").Find(&models).Error
 	if err != nil {
-		return nil, err
-	}
-	var games []Game
-	defer func() {
-		if err := result.Rows.Close(); err != nil {
-			log.Printf("Warning: failed to close row: %v", err)
-		}
-	}()
-
-	for result.Rows.Next() {
-		var gameID uuid.UUID
-		var number, maxDaysPlayed int
-		var playersName string
-
-		err := result.Rows.Scan(&gameID, &number, &maxDaysPlayed, &playersName)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-
-		game := LoadGame(gameID, number, maxDaysPlayed, playersName)
-		games = append(games, *game)
+		return nil, fmt.Errorf("failed to get all games: %w", err)
 	}
 
-	if len(games) == 0 {
-		return nil, sql.ErrNoRows
+	games := make([]Game, len(models))
+	for i, model := range models {
+		games[i] = *modelToGame(&model)
 	}
 
 	return games, nil
-}
-
-func (r *gameRepository) GetById(id string) (Game, error) {
-	query := `SELECT id, number, max_days_played, players_name FROM game WHERE id = ?`
-	result, err := r.connection.Query(query, id)
-	if err != nil {
-		return Game{}, err
-	}
-	defer result.Rows.Close()
-
-	if !result.Rows.Next() {
-		return Game{}, sql.ErrNoRows
-	}
-
-	var gameId, playersName string
-	var number, maxDaysPlayed int
-
-	err = result.Rows.Scan(&gameId, &number, &maxDaysPlayed, &playersName)
-	if err != nil {
-		return Game{}, err
-	}
-
-	return *LoadGame(uuid.MustParse(gameId), number, maxDaysPlayed, playersName), nil
-}
-
-func (r *gameRepository) Update(game Game) error {
-	query := `
-		UPDATE game 
-		SET number = ?, max_days_played = ?, players_name = ?
-		WHERE id = ?
-	`
-	_, err := r.connection.Execute(query, game.Number(), game.DaysPlayed(), game.PlayersName(), game.Id())
-	return err
-}
-
-func (r *gameRepository) Delete(id string) error {
-	query := `DELETE FROM game WHERE id = ?`
-	_, err := r.connection.Execute(query, id)
-	return err
 }

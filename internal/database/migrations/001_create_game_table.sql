@@ -1,10 +1,19 @@
 -- +goose Up
-CREATE TABLE IF NOT EXISTS game(
+CREATE TABLE IF NOT EXISTS game (
     id TEXT PRIMARY KEY,
     number INTEGER NOT NULL,
-    max_days_played INTEGER NOT NULL,
-    players_name TEXT NOT NULL
+    turns_played INTEGER NOT NULL DEFAULT 0,
+    players_name TEXT NOT NULL,
+    deleted_at TIMESTAMP DEFAULT NULL,
+    is_over BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX IF NOT EXISTS idx_game_number ON game(number);
+CREATE INDEX IF NOT EXISTS idx_game_players_name ON game(players_name);
+
 -- +goose Down
-DROP TABLE game;
+DROP INDEX IF EXISTS idx_game_players_name;
+DROP INDEX IF EXISTS idx_game_number;
+DROP TABLE IF EXISTS game;

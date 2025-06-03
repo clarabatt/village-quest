@@ -14,9 +14,14 @@ type MainMenu struct {
 }
 
 func Execute() {
-	dbConnection := database.NewSqliteAdapter()
-	gameRepo := game.NewGameRepository(dbConnection)
+	gormDB := database.NewGormDB()
+	defer gormDB.Close()
+
+	gameRepo := game.NewGameRepository(gormDB.DB)
 	gameService := game.NewGameService(gameRepo)
+
+	// turnRepo := turn.NewTurnRepository(gormDB)
+	// turnService := turn.NewTurnService(turnRepo)
 
 	RunMainMenu(gameService)
 }
@@ -123,7 +128,7 @@ func (m *MainMenu) DeleteGame() {
 				fmt.Scanln(&response)
 
 				if response == "y" || response == "Y" {
-					if err := m.GameService.DeleteGame(game.Id().String()); err != nil {
+					if err := m.GameService.DeleteGame(game.Id()); err != nil {
 						fmt.Printf("Failed to delete game: %v\n", err)
 					} else {
 						fmt.Printf("Game for %s deleted successfully!\n", game.PlayersName())

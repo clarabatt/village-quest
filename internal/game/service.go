@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -19,7 +21,7 @@ type gameService struct {
 type GameService interface {
 	CreateNewGame(playerName string) (*Game, error)
 	GetAllGames() ([]Game, error)
-	DeleteGame(gameId string) error
+	DeleteGame(gameId uuid.UUID) error
 }
 
 func NewGameService(repository GameRepository) GameService {
@@ -42,7 +44,7 @@ func (s *gameService) CreateNewGame(playerName string) (*Game, error) {
 
 	gameInstance := NewGame(nextGameNumber, playerName)
 
-	if err := s.repository.Insert(*gameInstance); err != nil {
+	if _, err := s.repository.Create(gameInstance); err != nil {
 		return nil, fmt.Errorf("failed to create game: %w", err)
 	}
 
@@ -59,12 +61,8 @@ func (s *gameService) GetAllGames() ([]Game, error) {
 	return games, nil
 }
 
-func (s *gameService) DeleteGame(gameId string) error {
-	if gameId == "" {
-		return ErrEmptyId
-	}
-
-	_, err := s.repository.GetById(gameId)
+func (s *gameService) DeleteGame(gameId uuid.UUID) error {
+	_, err := s.repository.GetByID(gameId)
 	if err != nil {
 		return ErrGameNotFound
 	}
