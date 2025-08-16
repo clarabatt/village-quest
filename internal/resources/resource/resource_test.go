@@ -59,3 +59,39 @@ func TestAdjustResourceValue(t *testing.T) {
 		})
 	}
 }
+
+func TestIsOperationValid(t *testing.T) {
+	testCases := []struct {
+		testName     string
+		initialValue int
+		adjustment   int
+		expectError  bool
+	}{
+		{"valid positive adjustment", 10, 5, false},
+		{"valid negative adjustment", 10, -5, false},
+		{"valid zero adjustment", 10, 0, false},
+		{"invalid negative result", 5, -10, true},
+		{"boundary case - exactly zero result", 5, -5, false},
+		{"boundary case - exactly negative by one", 5, -6, true},
+		{"zero initial value with positive adjustment", 0, 1, false},
+		{"zero initial value with negative adjustment", 0, -1, true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			resource := NewResource(tc.initialValue)
+			err := resource.IsOperationValid(tc.adjustment)
+
+			if tc.expectError && err == nil {
+				t.Fatal("expected error but got none")
+			}
+			if !tc.expectError && err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			
+			if resource.GetValue() != tc.initialValue {
+				t.Fatalf("validation changed resource value from %d to %d", tc.initialValue, resource.GetValue())
+			}
+		})
+	}
+}

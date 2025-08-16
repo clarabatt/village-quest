@@ -17,7 +17,7 @@ func (r *Resource) GetValue() int {
 	return r.value 
 }
 
-func (r *Resource) isOperationValid(value int) error {
+func (r *Resource) IsOperationValid(value int) error {
 	if r.value + value < 0 {
 		return fmt.Errorf("operation would result in negative value: %d + %d = %d", 
     r.value, value, r.value+value)
@@ -26,7 +26,7 @@ func (r *Resource) isOperationValid(value int) error {
 }
 
 func (r *Resource) AdjustValue(value int) (int, error){
-	err := r.isOperationValid(value) 
+	err := r.IsOperationValid(value) 
 	if err != nil {
 		return 0, err
 	}
