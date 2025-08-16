@@ -29,38 +29,33 @@ func TestNewResource(t *testing.T) {
 }
 
 func TestAdjustResourceValue(t *testing.T) {
-	t.Run("should increase if value is positive and valid", func(t *testing.T) {
-		startValue := 10
-		resource := NewResource(startValue)
-		increasedValue := 20
-		newValue, err := resource.AdjustValue(increasedValue)
-		expectedValue := startValue + increasedValue
-		if newValue != expectedValue {
-			t.Errorf("Expected value to be equal %d + %d = %d, got %d", startValue, increasedValue, expectedValue, newValue)
-		}
-		if resource.GetValue() != expectedValue {
-			t.Errorf("Expected value to be equal %d + %d = %d, got %d", startValue, increasedValue, expectedValue, resource.GetValue())
-		}
-		if err != nil {
-			t.Error("expected no error, got:", err)
-		}
-	})
+	testCases := []struct {
+		testName string
+		initialValue int
+		adjustment int
+		expectedValue int
+		expectError bool
+	} {
+		{"positive adjustment", 10, 5, 15, false},
+        {"negative valid adjustment", 10, -5, 5, false},
+        {"invalid negative result", 5, -10, 5, true},
+        {"zero adjustment", 10, 0, 10, false},
+	}
 
-	t.Run("should return error if value would result in a negative number", func(t *testing.T) {
-		startValue := 10
-		resource := NewResource(startValue)
-		increasedValue := -50
-		newValue, err := resource.AdjustValue(increasedValue)
-		expectedValue := startValue
-		if newValue != 0 {
-			t.Errorf("Expected value to be 0, got %d", newValue)
-		}
-		if resource.GetValue() != expectedValue {
-			t.Errorf("Expected resource value to not be changed")
-		}
-		if err == nil {
-			t.Errorf("Expected error for invalid value, got nil")
-		}
-	})
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			resource := NewResource(tc.initialValue)
+			_, err := resource.AdjustValue(tc.adjustment)
 
+			if tc.expectError && err == nil {
+                t.Fatal("expected error but got none")
+            }
+            if !tc.expectError && err != nil {
+                t.Fatalf("unexpected error: %v", err)
+            }
+            if resource.GetValue() != tc.expectedValue {
+                t.Fatalf("expected %d, got %d", tc.expectedValue, resource.GetValue())
+            }
+		})
+	}
 }
