@@ -8,7 +8,7 @@ type Game struct {
 	id          uuid.UUID
 	number      int
 	turnsPlayed int
-	playersName string
+	playerName string
 	isOver      bool
 }
 
@@ -17,7 +17,7 @@ func NewGame(num int, name string) *Game {
 		id:          uuid.New(),
 		number:      num,
 		turnsPlayed: 0,
-		playersName: name,
+		playerName: name,
 	}
 }
 
@@ -26,7 +26,7 @@ func LoadGame(existentId uuid.UUID, num int, turns int, name string) *Game {
 		id:          existentId,
 		number:      num,
 		turnsPlayed: turns,
-		playersName: name,
+		playerName: name,
 	}
 }
 
@@ -43,7 +43,7 @@ func (g *Game) TurnsPlayed() int {
 }
 
 func (g *Game) PlayersName() string {
-	return g.playersName
+	return g.playerName
 }
 
 func (g *Game) SetOver(isOver bool) {

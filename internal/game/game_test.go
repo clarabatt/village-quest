@@ -18,8 +18,8 @@ func TestCreateGame(t *testing.T) {
 		if game.number != A_GAME_NUMBER {
 			t.Errorf("Expected game.number to be %d, got %d", A_GAME_NUMBER, game.number)
 		}
-		if game.playersName != A_PLAYER_NAME {
-			t.Errorf("Expected game.playersName to be %s, got %s", A_PLAYER_NAME, game.playersName)
+		if game.playerName != A_PLAYER_NAME {
+			t.Errorf("Expected game.playersName to be %s, got %s", A_PLAYER_NAME, game.playerName)
 		}
 		if game.turnsPlayed != 0 {
 			t.Errorf("Expected game.turnsPlayed to be 0, got %d", game.turnsPlayed)
@@ -36,8 +36,8 @@ func TestLoadGame(t *testing.T) {
 		if game.number != A_GAME_NUMBER {
 			t.Errorf("Expected game.number to be %d, got %d", A_GAME_NUMBER, game.number)
 		}
-		if game.playersName != A_PLAYER_NAME {
-			t.Errorf("Expected game.playersName to be %s, got %s", A_PLAYER_NAME, game.playersName)
+		if game.playerName != A_PLAYER_NAME {
+			t.Errorf("Expected game.playersName to be %s, got %s", A_PLAYER_NAME, game.playerName)
 		}
 		if game.turnsPlayed != A_GAME_TURNS_PLAYED {
 			t.Errorf("Expected game.turnsPlayed to be %d, got %d", A_GAME_TURNS_PLAYED, game.turnsPlayed)

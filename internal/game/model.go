@@ -9,7 +9,7 @@ type GameModel struct {
 	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
 	Number      int       `gorm:"not null"`
 	TurnsPlayed int       `gorm:"default:0"`
-	PlayersName string    `gorm:"type:varchar(255);not null"`
+	PlayerName  string    `gorm:"type:varchar(255);not null"`
 	IsOver      bool      `gorm:"default:false"`
 	gorm.Model
 }
@@ -30,7 +30,7 @@ func gameToModel(game *Game) *GameModel {
 		ID:          game.id,
 		Number:      game.number,
 		TurnsPlayed: game.turnsPlayed,
-		PlayersName: game.playersName,
+		PlayerName:  game.playerName,
 		IsOver:      game.isOver,
 	}
 }
@@ -40,7 +40,7 @@ func modelToGame(model *GameModel) *Game {
 		id:          model.ID,
 		number:      model.Number,
 		turnsPlayed: model.TurnsPlayed,
-		playersName: model.PlayersName,
+		playerName:  model.PlayerName,
 		isOver:      model.IsOver,
 	}
 }
