@@ -13,15 +13,11 @@ type turnRepository struct {
 }
 
 type TurnRepository interface {
-	Create(turn Turn, gameID uuid.UUID) (*Turn, error)
-	Update(turn Turn, gameID uuid.UUID) (*Turn, error)
+	Create(turn *Turn) (*Turn, error)
+	Update(turn *Turn) (*Turn, error)
 	GetLastTurn(gameID uuid.UUID) (*Turn, error)
 	GetTurnByID(id uuid.UUID, gameID uuid.UUID) (*Turn, error)
-	GetAllTurns(gameID uuid.UUID) ([]Turn, error)
-}
-
-func (TurnModel) TableName() string {
-	return "turn_history"
+	GetAllTurns(gameID uuid.UUID) ([]*Turn, error)
 }
 
 func NewTurnRepository(db *gorm.DB) TurnRepository {
@@ -30,8 +26,8 @@ func NewTurnRepository(db *gorm.DB) TurnRepository {
 	}
 }
 
-func (r *turnRepository) Create(turn Turn, gameID uuid.UUID) (*Turn, error) {
-	model, err := turnToModel(&turn, gameID)
+func (r *turnRepository) Create(turn *Turn) (*Turn, error) {
+	model, err := turnToModel(turn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert turn to model: %w", err)
 	}
@@ -48,14 +44,14 @@ func (r *turnRepository) Create(turn Turn, gameID uuid.UUID) (*Turn, error) {
 	return result, nil
 }
 
-func (r *turnRepository) Update(turn Turn, gameID uuid.UUID) (*Turn, error) {
-	model, err := turnToModel(&turn, gameID)
+func (r *turnRepository) Update(turn *Turn) (*Turn, error) {
+	model, err := turnToModel(turn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert turn to model: %w", err)
 	}
 
 	result := r.db.Model(&TurnModel{}).
-		Where("id = ? AND game_id = ?", turn.Id, gameID).
+		Where("id = ? AND game_id = ?", turn.GetID(), turn.GetGameID()).
 		Updates(model)
 
 	if result.Error != nil {
@@ -63,11 +59,11 @@ func (r *turnRepository) Update(turn Turn, gameID uuid.UUID) (*Turn, error) {
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, fmt.Errorf("turn not found: id=%s, gameID=%s", turn.Id, gameID)
+		return nil, fmt.Errorf("turn not found: id=%s, gameID=%s", turn.GetID(), turn.GetGameID())
 	}
 
 	var updatedModel TurnModel
-	if err := r.db.Where("id = ? AND game_id = ?", turn.Id, gameID).First(&updatedModel).Error; err != nil {
+	if err := r.db.Where("id = ? AND game_id = ?", turn.GetID(), turn.GetGameID()).First(&updatedModel).Error; err != nil {
 		return nil, fmt.Errorf("failed to fetch updated turn: %w", err)
 	}
 
@@ -120,7 +116,7 @@ func (r *turnRepository) GetTurnByID(id uuid.UUID, gameID uuid.UUID) (*Turn, err
 	return turn, nil
 }
 
-func (r *turnRepository) GetAllTurns(gameID uuid.UUID) ([]Turn, error) {
+func (r *turnRepository) GetAllTurns(gameID uuid.UUID) ([]*Turn, error) {
 	var models []TurnModel
 
 	err := r.db.Where("game_id = ?", gameID).
@@ -131,13 +127,13 @@ func (r *turnRepository) GetAllTurns(gameID uuid.UUID) ([]Turn, error) {
 		return nil, fmt.Errorf("failed to get all turns: %w", err)
 	}
 
-	turns := make([]Turn, len(models))
+	turns := make([]*Turn, len(models))
 	for i, model := range models {
 		turn, err := modelToTurn(&model)
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert model to turn at index %d: %w", i, err)
 		}
-		turns[i] = *turn
+		turns[i] = turn
 	}
 
 	return turns, nil
