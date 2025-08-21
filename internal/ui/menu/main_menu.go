@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 	"villagequest/internal/database"
+	"villagequest/internal/engine"
 	"villagequest/internal/game"
-	"villagequest/internal/gameplay"
 	"villagequest/internal/menu"
 )
 
@@ -62,7 +62,7 @@ func (m *MainMenu) NewGame() {
 	fmt.Println("Starting game...")
 	menu.WaitForEnter()
 
-	gameLoop := gameplay.NewGameLoop(gameInstance)
+	gameLoop := engine.NewGameLoop(gameInstance)
 	gameLoop.Run()
 }
 
@@ -92,7 +92,7 @@ func (m *MainMenu) LoadGame() {
 				fmt.Printf("Loading game #%d for %s...\n", game.Number(), game.PlayersName())
 				menu.WaitForEnter()
 
-				gameLoop := gameplay.NewGameLoop(&game)
+				gameLoop := engine.NewGameLoop(&game)
 				gameLoop.Run()
 			},
 			i+1,
