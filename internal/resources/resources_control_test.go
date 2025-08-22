@@ -1,4 +1,4 @@
-package resourcesControl
+package resources
 
 import (
 	"testing"

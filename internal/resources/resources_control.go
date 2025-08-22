@@ -1,9 +1,8 @@
-package resourcesControl
+package resources
 
 import (
 	"fmt"
 	"strings"
-	. "villagequest/internal/resources/resource"
 )
 
 type ResourcesControl struct {
