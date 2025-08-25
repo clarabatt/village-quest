@@ -3,7 +3,7 @@ package engine
 import (
 	"fmt"
 	"strconv"
-	"villagequest/internal/game"
+	"villagequest/internal/domain/game"
 	"villagequest/internal/ui/menu"
 )
 

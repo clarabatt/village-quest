@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
-	"villagequest/internal/game"
+	"villagequest/internal/domain/game"
 )
 
 type MainMenu struct {

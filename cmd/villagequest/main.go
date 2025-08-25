@@ -2,8 +2,8 @@ package main
 
 import (
 	"villagequest/internal/database"
+	"villagequest/internal/domain/game"
 	"villagequest/internal/engine"
-	"villagequest/internal/game"
 	"villagequest/internal/ui/menu"
 )
 

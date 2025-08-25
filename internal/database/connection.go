@@ -42,7 +42,7 @@ func NewGormDB() *GormDB {
 		log.Fatal("Failed to get sql.DB:", err)
 	}
 
-	migrationsDir := filepath.Join(homeDir, "/migrations")
+	migrationsDir := filepath.Join(homeDir, "internal/database/migrations")
 	if err := runMigrations(sqlDB, migrationsDir); err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
