@@ -7,7 +7,7 @@ import (
 func TestNewResourceControl(t *testing.T) {
 	t.Run("creates resource control with specified values", func(t *testing.T) {
 		rc := NewResourceControl(10, 5, 3, 8, 2)
-		
+
 		if rc.GetStone() != 10 {
 			t.Errorf("expected stone to be 10, got %d", rc.GetStone())
 		}
@@ -27,7 +27,7 @@ func TestNewResourceControl(t *testing.T) {
 
 	t.Run("creates resource control with zero values", func(t *testing.T) {
 		rc := NewResourceControl(0, 0, 0, 0, 0)
-		
+
 		if rc.GetStone() != 0 {
 			t.Errorf("expected stone to be 0, got %d", rc.GetStone())
 		}
@@ -50,7 +50,7 @@ func TestGetResourcesMap(t *testing.T) {
 	t.Run("returns correct resource map", func(t *testing.T) {
 		rc := NewResourceControl(10, 5, 3, 8, 2)
 		resourceMap := rc.GetResourcesMap()
-		
+
 		expected := map[string]int{
 			"Stone":  10,
 			"Gold":   5,
@@ -58,7 +58,7 @@ func TestGetResourcesMap(t *testing.T) {
 			"Food":   8,
 			"Worker": 2,
 		}
-		
+
 		for key, expectedValue := range expected {
 			if resourceMap[key] != expectedValue {
 				t.Errorf("expected %s to be %d, got %d", key, expectedValue, resourceMap[key])
@@ -70,22 +70,22 @@ func TestGetResourcesMap(t *testing.T) {
 func TestIndividualAdjustMethods(t *testing.T) {
 	testCases := []struct {
 		testName     string
-		adjustMethod func(*ResourcesControl, int) (int, error)
-		getMethod    func(*ResourcesControl) int
+		adjustMethod func(*Resources, int) (int, error)
+		getMethod    func(*Resources) int
 		resourceName string
 	}{
-		{"stone", (*ResourcesControl).AdjustStone, (*ResourcesControl).GetStone, "stone"},
-		{"gold", (*ResourcesControl).AdjustGold, (*ResourcesControl).GetGold, "gold"},
-		{"wood", (*ResourcesControl).AdjustWood, (*ResourcesControl).GetWood, "wood"},
-		{"food", (*ResourcesControl).AdjustFood, (*ResourcesControl).GetFood, "food"},
-		{"worker", (*ResourcesControl).AdjustWorker, (*ResourcesControl).GetWorker, "worker"},
+		{"stone", (*Resources).AdjustStone, (*Resources).GetStone, "stone"},
+		{"gold", (*Resources).AdjustGold, (*Resources).GetGold, "gold"},
+		{"wood", (*Resources).AdjustWood, (*Resources).GetWood, "wood"},
+		{"food", (*Resources).AdjustFood, (*Resources).GetFood, "food"},
+		{"worker", (*Resources).AdjustWorker, (*Resources).GetWorker, "worker"},
 	}
 
 	for _, tc := range testCases {
 		t.Run("adjust "+tc.resourceName+" positive", func(t *testing.T) {
 			rc := NewResourceControl(10, 10, 10, 10, 10)
 			newValue, err := tc.adjustMethod(rc, 5)
-			
+
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -100,7 +100,7 @@ func TestIndividualAdjustMethods(t *testing.T) {
 		t.Run("adjust "+tc.resourceName+" negative valid", func(t *testing.T) {
 			rc := NewResourceControl(10, 10, 10, 10, 10)
 			newValue, err := tc.adjustMethod(rc, -3)
-			
+
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -115,7 +115,7 @@ func TestIndividualAdjustMethods(t *testing.T) {
 		t.Run("adjust "+tc.resourceName+" negative invalid", func(t *testing.T) {
 			rc := NewResourceControl(5, 5, 5, 5, 5)
 			_, err := tc.adjustMethod(rc, -10)
-			
+
 			if err == nil {
 				t.Fatal("expected error for invalid negative adjustment")
 			}
@@ -130,18 +130,18 @@ func TestAdjustMultiple(t *testing.T) {
 	t.Run("successful multiple adjustments", func(t *testing.T) {
 		rc := NewResourceControl(10, 10, 10, 10, 10)
 		adjustments := map[string]int{
-			"stone": 5,
-			"gold":  -3,
-			"wood":  0,
-			"food":  2,
+			"stone":  5,
+			"gold":   -3,
+			"wood":   0,
+			"food":   2,
 			"worker": -1,
 		}
-		
+
 		err := rc.AdjustMultiple(adjustments)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		
+
 		expected := map[string]int{
 			"stone":  15,
 			"gold":   7,
@@ -149,7 +149,7 @@ func TestAdjustMultiple(t *testing.T) {
 			"food":   12,
 			"worker": 9,
 		}
-		
+
 		if rc.GetStone() != expected["stone"] {
 			t.Errorf("expected stone to be %d, got %d", expected["stone"], rc.GetStone())
 		}
@@ -174,12 +174,12 @@ func TestAdjustMultiple(t *testing.T) {
 			"Gold":  3,
 			"wOoD":  2,
 		}
-		
+
 		err := rc.AdjustMultiple(adjustments)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		
+
 		if rc.GetStone() != 15 {
 			t.Errorf("expected stone to be 15, got %d", rc.GetStone())
 		}
@@ -196,12 +196,12 @@ func TestAdjustMultiple(t *testing.T) {
 		adjustments := map[string]int{
 			"unknown": 5,
 		}
-		
+
 		err := rc.AdjustMultiple(adjustments)
 		if err == nil {
 			t.Fatal("expected error for unknown resource")
 		}
-		
+
 		expectedError := "unknown resource: unknown"
 		if err.Error() != expectedError {
 			t.Errorf("expected error '%s', got '%s'", expectedError, err.Error())
@@ -217,18 +217,18 @@ func TestAdjustMultiple(t *testing.T) {
 			"food":   rc.GetFood(),
 			"worker": rc.GetWorker(),
 		}
-		
+
 		adjustments := map[string]int{
 			"stone": 5,   // valid: 5 + 5 = 10
 			"gold":  -15, // invalid: 10 - 15 = -5
 			"wood":  3,   // valid: 15 + 3 = 18
 		}
-		
+
 		err := rc.AdjustMultiple(adjustments)
 		if err == nil {
 			t.Fatal("expected error for invalid adjustment")
 		}
-		
+
 		if rc.GetStone() != originalValues["stone"] {
 			t.Errorf("expected stone to remain %d, got %d", originalValues["stone"], rc.GetStone())
 		}
@@ -255,12 +255,12 @@ func TestAdjustMultiple(t *testing.T) {
 			"food":   rc.GetFood(),
 			"worker": rc.GetWorker(),
 		}
-		
+
 		err := rc.AdjustMultiple(map[string]int{})
 		if err != nil {
 			t.Fatalf("unexpected error for empty map: %v", err)
 		}
-		
+
 		if rc.GetStone() != originalValues["stone"] {
 			t.Errorf("expected stone to remain %d, got %d", originalValues["stone"], rc.GetStone())
 		}

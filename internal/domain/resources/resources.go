@@ -5,26 +5,26 @@ import (
 	"strings"
 )
 
-type ResourcesControl struct {
-	stone *Resource
-	gold *Resource
-	wood *Resource
-	food *Resource
+type Resources struct {
+	stone  *Resource
+	gold   *Resource
+	wood   *Resource
+	food   *Resource
 	worker *Resource
 }
 
-func NewResourceControl(stone int, gold int, wood int, food int, worker int) *ResourcesControl {
-	r := ResourcesControl {
-		stone: NewResource(stone),
-		gold: NewResource(gold),
-		wood: NewResource(wood),
-		food: NewResource(food),
+func NewResourceControl(stone int, gold int, wood int, food int, worker int) *Resources {
+	r := Resources{
+		stone:  NewResource(stone),
+		gold:   NewResource(gold),
+		wood:   NewResource(wood),
+		food:   NewResource(food),
 		worker: NewResource(worker),
 	}
 	return &r
 }
 
-func (rc *ResourcesControl) GetResourcesMap() map[string]int {
+func (rc *Resources) GetResourcesMap() map[string]int {
 	return map[string]int{
 		"Stone":  rc.GetStone(),
 		"Gold":   rc.GetGold(),
@@ -34,10 +34,10 @@ func (rc *ResourcesControl) GetResourcesMap() map[string]int {
 	}
 }
 
-func (rc *ResourcesControl) AdjustMultiple(adjustments map[string]int) error {
+func (rc *Resources) AdjustMultiple(adjustments map[string]int) error {
 	for resourceName, adjustment := range adjustments {
 		var currentResource *Resource
-		
+
 		switch strings.ToLower(resourceName) {
 		case "stone":
 			currentResource = rc.stone
@@ -57,7 +57,7 @@ func (rc *ResourcesControl) AdjustMultiple(adjustments map[string]int) error {
 			return fmt.Errorf("invalid adjustment for %s: %w", resourceName, err)
 		}
 	}
-	
+
 	for resourceName, adjustment := range adjustments {
 		switch strings.ToLower(resourceName) {
 		case "stone":
@@ -75,42 +75,42 @@ func (rc *ResourcesControl) AdjustMultiple(adjustments map[string]int) error {
 	return nil
 }
 
-func (rc *ResourcesControl) GetStone() int {
+func (rc *Resources) GetStone() int {
 	return rc.stone.GetValue()
 }
 
-func (rc *ResourcesControl) GetGold() int {
+func (rc *Resources) GetGold() int {
 	return rc.gold.GetValue()
 }
 
-func (rc *ResourcesControl) GetWood() int {
+func (rc *Resources) GetWood() int {
 	return rc.wood.GetValue()
 }
 
-func (rc *ResourcesControl) GetFood() int {
+func (rc *Resources) GetFood() int {
 	return rc.food.GetValue()
 }
 
-func (rc *ResourcesControl) GetWorker() int {
+func (rc *Resources) GetWorker() int {
 	return rc.worker.GetValue()
 }
 
-func (rc *ResourcesControl) AdjustStone(value int) (int, error) {
+func (rc *Resources) AdjustStone(value int) (int, error) {
 	return rc.stone.AdjustValue(value)
 }
 
-func (rc *ResourcesControl) AdjustGold(value int) (int, error) {
+func (rc *Resources) AdjustGold(value int) (int, error) {
 	return rc.gold.AdjustValue(value)
 }
 
-func (rc *ResourcesControl) AdjustWood(value int) (int, error) {
+func (rc *Resources) AdjustWood(value int) (int, error) {
 	return rc.wood.AdjustValue(value)
 }
 
-func (rc *ResourcesControl) AdjustFood(value int) (int, error) {
+func (rc *Resources) AdjustFood(value int) (int, error) {
 	return rc.food.AdjustValue(value)
 }
 
-func (rc *ResourcesControl) AdjustWorker(value int) (int, error) {
+func (rc *Resources) AdjustWorker(value int) (int, error) {
 	return rc.worker.AdjustValue(value)
 }
