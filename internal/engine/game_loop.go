@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"strconv"
 	"villagequest/internal/game"
-	"villagequest/internal/menu"
+	"villagequest/internal/ui/menu"
 )
 
 type GameLoop struct {
 	Game *game.Game
 	Turn int
+}
+
+type GameRunner interface {
+    Run()
 }
 
 func NewGameLoop(g *game.Game) *GameLoop {

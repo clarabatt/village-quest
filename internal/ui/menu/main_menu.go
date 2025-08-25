@@ -6,34 +6,22 @@ import (
 	"log"
 	"os"
 	"strings"
-	"villagequest/internal/database"
-	"villagequest/internal/engine"
 	"villagequest/internal/game"
-	"villagequest/internal/menu"
 )
 
 type MainMenu struct {
 	GameService game.GameService
+	GameStarter func(*game.Game)
 }
 
-func Execute() {
-	gormDB := database.NewGormDB()
-	defer gormDB.Close()
-
-	gameRepo := game.NewGameRepository(gormDB.DB)
-	gameService := game.NewGameService(gameRepo)
-
-	// turnRepo := turn.NewTurnRepository(gormDB)
-	// turnService := turn.NewTurnService(turnRepo)
-
-	RunMainMenu(gameService)
-}
-
-func RunMainMenu(gameService game.GameService) {
+func RunMainMenu(gameService game.GameService, gameStarter func(*game.Game)) {
 	DisplayWelcome()
 
-	m := menu.NewMenu("Main menu", nil)
-	mainMenu := &MainMenu{GameService: gameService}
+	m := NewMenu("Main menu", nil)
+	mainMenu := &MainMenu{
+		GameService: gameService,
+		GameStarter: gameStarter,
+}
 
 	m.AddItem("New game", mainMenu.NewGame, 1)
 	m.AddItem("Load game", mainMenu.LoadGame, 2)
@@ -42,11 +30,17 @@ func RunMainMenu(gameService game.GameService) {
 	m.Show()
 }
 
+func (m *MainMenu) startGame(gameInstance *game.Game) {
+    if m.GameStarter != nil {
+        m.GameStarter(gameInstance)
+    }
+}
+
 func (m *MainMenu) NewGame() {
 	playerName := getPlayerName()
 	if playerName == "" {
 		fmt.Println("Invalid player name. Please try again.")
-		menu.WaitForEnter()
+		WaitForEnter()
 		return
 	}
 
@@ -54,16 +48,15 @@ func (m *MainMenu) NewGame() {
 	if err != nil {
 		log.Printf("Error creating game: %v", err)
 		fmt.Printf("Failed to create game: %v\n", err)
-		menu.WaitForEnter()
+		WaitForEnter()
 		return
 	}
 
 	fmt.Printf("Game created successfully for %s!\n", gameInstance.PlayersName())
 	fmt.Println("Starting game...")
-	menu.WaitForEnter()
+	WaitForEnter()
 
-	gameLoop := engine.NewGameLoop(gameInstance)
-	gameLoop.Run()
+	m.startGame(gameInstance)
 }
 
 func (m *MainMenu) LoadGame() {
@@ -71,18 +64,18 @@ func (m *MainMenu) LoadGame() {
 	if err != nil {
 		log.Printf("Error loading games: %v", err)
 		fmt.Printf("Failed to load games: %v\n", err)
-		menu.WaitForEnter()
+		WaitForEnter()
 		return
 	}
 
 	if len(games) == 0 {
 		fmt.Println("No saved games found.")
-		menu.WaitForEnter()
+		WaitForEnter()
 		return
 	}
 
-	mainMenuRef := menu.NewMenu("Main menu", nil)
-	loadGameMenu := menu.NewSubMenu("Load Saved Game", mainMenuRef, nil)
+	mainMenuRef := NewMenu("Main menu", nil)
+	loadGameMenu := NewSubMenu("Load Saved Game", mainMenuRef, nil)
 
 	for i, g := range games {
 		game := g
@@ -90,10 +83,9 @@ func (m *MainMenu) LoadGame() {
 			fmt.Sprintf("Game #%d - %s", game.Number(), game.PlayersName()),
 			func() {
 				fmt.Printf("Loading game #%d for %s...\n", game.Number(), game.PlayersName())
-				menu.WaitForEnter()
+				WaitForEnter()
 
-				gameLoop := engine.NewGameLoop(&game)
-				gameLoop.Run()
+				m.startGame(&game)
 			},
 			i+1,
 		)
@@ -106,18 +98,18 @@ func (m *MainMenu) DeleteGame() {
 	if err != nil {
 		log.Printf("Error loading games: %v", err)
 		fmt.Printf("Failed to load games: %v\n", err)
-		menu.WaitForEnter()
+		WaitForEnter()
 		return
 	}
 
 	if len(games) == 0 {
 		fmt.Println("No saved games to delete.")
-		menu.WaitForEnter()
+		WaitForEnter()
 		return
 	}
 
-	mainMenuRef := menu.NewMenu("Main menu", nil)
-	deleteGameMenu := menu.NewSubMenu("Delete Game", mainMenuRef, nil)
+	mainMenuRef := NewMenu("Main menu", nil)
+	deleteGameMenu := NewSubMenu("Delete Game", mainMenuRef, nil)
 
 	for i, g := range games {
 		game := g
@@ -126,7 +118,7 @@ func (m *MainMenu) DeleteGame() {
 			func() {
 				prompt := fmt.Sprintf("Are you sure you want to delete game for %s? (y/n): ", game.PlayersName())
 
-				if menu.GetConfirmation(prompt) {
+				if GetConfirmation(prompt) {
 					if err := m.GameService.DeleteGame(game.Id()); err != nil {
 						fmt.Printf("Failed to delete game: %v\n", err)
 					} else {
@@ -135,7 +127,7 @@ func (m *MainMenu) DeleteGame() {
 				} else {
 					fmt.Println("Delete cancelled.")
 				}
-				menu.WaitForEnter()
+				WaitForEnter()
 			},
 			i+1,
 		)
@@ -190,5 +182,5 @@ func DisplayWelcome() {
 	fmt.Println("║  📊 Manage resources, build structures, handle events         ║")
 	fmt.Println("║                                                               ║")
 	fmt.Println("╚═══════════════════════════════════════════════════════════════╝")
-	menu.WaitForEnter()
+	WaitForEnter()
 }
