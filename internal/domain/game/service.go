@@ -12,6 +12,7 @@ var (
 	ErrGameNotFound    = errors.New("game not found")
 	ErrEmptyId         = errors.New("game ID cannot be empty")
 	ErrPlayerNameEmpty = errors.New("player name cannot be empty")
+	ErrGameIsNil       = errors.New("game cannot be nil")
 )
 
 type gameService struct {
@@ -22,6 +23,7 @@ type GameService interface {
 	CreateNewGame(playerName string) (*Game, error)
 	GetAllGames() ([]Game, error)
 	DeleteGame(gameId uuid.UUID) error
+	SaveGame(game *Game) error
 }
 
 func NewGameService(repository GameRepository) GameService {
@@ -73,5 +75,23 @@ func (s *gameService) DeleteGame(gameId uuid.UUID) error {
 	}
 
 	log.Printf("Deleted game with ID: %s", gameId)
+	return nil
+}
+
+func (s *gameService) SaveGame(game *Game) error {
+	if game == nil {
+		return ErrGameIsNil
+	}
+
+	if game.Id() == uuid.Nil {
+		return ErrEmptyId
+	}
+
+	_, err := s.repository.Update(game)
+	if err != nil {
+		return fmt.Errorf("failed to save game: %w", err)
+	}
+
+	log.Printf("Saved game for player: %s (Game #%d)", game.PlayersName(), game.Number())
 	return nil
 }
