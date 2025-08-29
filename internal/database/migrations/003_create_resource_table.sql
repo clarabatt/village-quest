@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS resource (
 
 CREATE INDEX IF NOT EXISTS idx_resource_turn_id ON resource(turn_id);
 CREATE INDEX IF NOT EXISTS idx_resource_created_at ON resource(created_at);
-CREATE INDEX IF NOT EXISTS idx_resource_deleted_at ON resource(deleted_at);
 
 -- +goose Down
 DROP INDEX IF EXISTS idx_resource_deleted_at;
