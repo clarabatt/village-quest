@@ -4,5 +4,5 @@ type resourcesService struct {
 	repository ResourcesRepository
 }
 
-type ResourcesService struct {
+type ResourcesService interface {
 }
