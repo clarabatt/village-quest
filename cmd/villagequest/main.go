@@ -14,13 +14,13 @@ func main() {
 	gameRepo := game.NewGameRepository(gormDB.DB)
 	gameService := game.NewGameService(gameRepo)
 
-	// turnRepo := turn.NewTurnRepository(gormDB)
+	// turnRepo := turn.NewTurnRepository(gormDB.DB)
 	// turnService := turn.NewTurnService(turnRepo)
 
 	gameStarter := func(g *game.Game) {
-        gameLoop := engine.NewGameLoop(g)
-        gameLoop.Run()
-    }
+		gameLoop := engine.NewGameLoop(g)
+		gameLoop.Run()
+	}
 
 	menu.RunMainMenu(gameService, gameStarter)
 }
