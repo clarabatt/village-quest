@@ -1,10 +1,11 @@
 package main
 
 import (
+	. "villagequest/internal/application"
 	"villagequest/internal/database"
 	"villagequest/internal/domain/game"
-	"villagequest/internal/domain/turn"
 	"villagequest/internal/engine"
+	. "villagequest/internal/repositories"
 	"villagequest/internal/ui/menu"
 )
 
@@ -12,11 +13,11 @@ func main() {
 	gormDB := database.NewGormDB()
 	defer gormDB.Close()
 
-	gameRepo := game.NewGameRepository(gormDB.DB)
-	gameService := game.NewGameService(gameRepo)
+	gameRepo := NewGameRepository(gormDB.DB)
+	gameService := NewGameService(gameRepo)
 
-	turnRepo := turn.NewTurnRepository(gormDB.DB)
-	turnService := turn.NewTurnService(turnRepo)
+	turnRepo := NewTurnRepository(gormDB.DB)
+	turnService := NewTurnService(turnRepo)
 
 	gameStarter := func(g *game.Game) {
 		gameLoop := engine.NewGameLoop(

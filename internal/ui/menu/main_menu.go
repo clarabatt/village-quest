@@ -6,22 +6,24 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	. "villagequest/internal/application"
 	"villagequest/internal/domain/game"
 )
 
 type MainMenu struct {
-	GameService game.GameService
+	GameService GameService
 	GameStarter func(*game.Game)
 }
 
-func RunMainMenu(gameService game.GameService, gameStarter func(*game.Game)) {
+func RunMainMenu(gameService GameService, gameStarter func(*game.Game)) {
 	DisplayWelcome()
 
 	m := NewMenu("Main menu", nil)
 	mainMenu := &MainMenu{
 		GameService: gameService,
 		GameStarter: gameStarter,
-}
+	}
 
 	m.AddItem("New game", mainMenu.NewGame, 1)
 	m.AddItem("Load game", mainMenu.LoadGame, 2)
@@ -31,9 +33,9 @@ func RunMainMenu(gameService game.GameService, gameStarter func(*game.Game)) {
 }
 
 func (m *MainMenu) startGame(gameInstance *game.Game) {
-    if m.GameStarter != nil {
-        m.GameStarter(gameInstance)
-    }
+	if m.GameStarter != nil {
+		m.GameStarter(gameInstance)
+	}
 }
 
 func (m *MainMenu) NewGame() {

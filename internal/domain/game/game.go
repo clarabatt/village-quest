@@ -8,7 +8,7 @@ type Game struct {
 	id          uuid.UUID
 	number      int
 	turnsPlayed int
-	playerName string
+	playerName  string
 	isOver      bool
 }
 
@@ -17,7 +17,7 @@ func NewGame(num int, name string) *Game {
 		id:          uuid.New(),
 		number:      num,
 		turnsPlayed: 0,
-		playerName: name,
+		playerName:  name,
 	}
 }
 
@@ -26,7 +26,7 @@ func LoadGame(existentId uuid.UUID, num int, turns int, name string) *Game {
 		id:          existentId,
 		number:      num,
 		turnsPlayed: turns,
-		playerName: name,
+		playerName:  name,
 	}
 }
 

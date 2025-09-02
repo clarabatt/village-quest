@@ -1,8 +1,10 @@
-package turn
+package repositories
 
 import (
 	"errors"
 	"fmt"
+
+	. "villagequest/internal/domain/turn"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -27,7 +29,7 @@ func NewTurnRepository(db *gorm.DB) TurnRepository {
 }
 
 func (r *turnRepository) Create(turn *Turn) (*Turn, error) {
-	model, err := turnToModel(turn)
+	model, err := TurnToModel(turn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert turn to model: %w", err)
 	}
@@ -36,7 +38,7 @@ func (r *turnRepository) Create(turn *Turn) (*Turn, error) {
 		return nil, fmt.Errorf("failed to insert turn: %w", err)
 	}
 
-	result, err := modelToTurn(model)
+	result, err := ModelToTurn(model)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert model back to turn: %w", err)
 	}
@@ -45,7 +47,7 @@ func (r *turnRepository) Create(turn *Turn) (*Turn, error) {
 }
 
 func (r *turnRepository) Update(turn *Turn) (*Turn, error) {
-	model, err := turnToModel(turn)
+	model, err := TurnToModel(turn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert turn to model: %w", err)
 	}
@@ -67,7 +69,7 @@ func (r *turnRepository) Update(turn *Turn) (*Turn, error) {
 		return nil, fmt.Errorf("failed to fetch updated turn: %w", err)
 	}
 
-	updatedTurn, err := modelToTurn(&updatedModel)
+	updatedTurn, err := ModelToTurn(&updatedModel)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert updated model to turn: %w", err)
 	}
@@ -89,7 +91,7 @@ func (r *turnRepository) GetLastTurn(gameID uuid.UUID) (*Turn, error) {
 		return nil, fmt.Errorf("failed to get last turn: %w", err)
 	}
 
-	turn, err := modelToTurn(&model)
+	turn, err := ModelToTurn(&model)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert model to turn: %w", err)
 	}
@@ -108,7 +110,7 @@ func (r *turnRepository) GetTurnByID(id uuid.UUID, gameID uuid.UUID) (*Turn, err
 		return nil, fmt.Errorf("failed to get turn by ID: %w", err)
 	}
 
-	turn, err := modelToTurn(&model)
+	turn, err := ModelToTurn(&model)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert model to turn: %w", err)
 	}
@@ -129,7 +131,7 @@ func (r *turnRepository) GetAllTurns(gameID uuid.UUID) ([]*Turn, error) {
 
 	turns := make([]*Turn, len(models))
 	for i, model := range models {
-		turn, err := modelToTurn(&model)
+		turn, err := ModelToTurn(&model)
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert model to turn at index %d: %w", i, err)
 		}

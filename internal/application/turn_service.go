@@ -1,9 +1,14 @@
-package turn
+package application
 
-import "github.com/google/uuid"
+import (
+	. "villagequest/internal/domain/turn"
+	. "villagequest/internal/repositories"
+
+	"github.com/google/uuid"
+)
 
 type turnService struct {
-	repository TurnRepository
+	turnRepo TurnRepository
 }
 
 type TurnService interface {
@@ -15,12 +20,12 @@ type TurnService interface {
 
 func NewTurnService(repository TurnRepository) TurnService {
 	return &turnService{
-		repository: repository,
+		turnRepo: repository,
 	}
 }
 
 func (ts *turnService) LoadLastTurn(gameId uuid.UUID) *Turn {
-	lastTurn, err := ts.repository.GetLastTurn(gameId)
+	lastTurn, err := ts.turnRepo.GetLastTurn(gameId)
 	if err != nil {
 		return nil
 	}
@@ -29,7 +34,7 @@ func (ts *turnService) LoadLastTurn(gameId uuid.UUID) *Turn {
 
 func (ts *turnService) LoadFirstTurn(gameId uuid.UUID) *Turn {
 	newTurn := CreateTurn(gameId)
-	result, err := ts.repository.Create(newTurn)
+	result, err := ts.turnRepo.Create(newTurn)
 	if err != nil {
 		return nil
 	}
@@ -42,7 +47,7 @@ func (ts *turnService) FinishTurn(turn Turn) {
 
 func (ts *turnService) StartNextTurn(turn Turn) *Turn {
 	nextTurn := turn.CreateNextTurn()
-	result, err := ts.repository.Create(nextTurn)
+	result, err := ts.turnRepo.Create(nextTurn)
 	if err != nil {
 		return nil
 	}

@@ -1,8 +1,10 @@
-package resources
+package repositories
 
 import (
 	"errors"
 	"fmt"
+
+	. "villagequest/internal/domain/resources"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -25,11 +27,11 @@ func NewResourcesRepository(db *gorm.DB) ResourcesRepository {
 }
 
 func (r *resourcesRepository) Create(resources *Resources, turnID uuid.UUID) (*Resources, error) {
-	model := resourcesToModel(resources, turnID)
+	model := ResourcesToModel(resources, turnID)
 	if err := r.db.Create(model).Error; err != nil {
 		return nil, fmt.Errorf("failed to create resources: %w", err)
 	}
-	result := modelToResources(model)
+	result := ModelToResources(model)
 	return result, nil
 }
 
@@ -44,7 +46,7 @@ func (r *resourcesRepository) GetByID(id uuid.UUID) (*Resources, error) {
 		return nil, fmt.Errorf("failed to get resources by ID: %w", err)
 	}
 
-	game := modelToResources(&model)
+	game := ModelToResources(&model)
 	return game, nil
 }
 
@@ -59,6 +61,6 @@ func (r *resourcesRepository) GetByTurnId(id uuid.UUID) (*Resources, error) {
 		return nil, fmt.Errorf("failed to get resources by turn ID: %w", err)
 	}
 
-	game := modelToResources(&model)
+	game := ModelToResources(&model)
 	return game, nil
 }

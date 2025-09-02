@@ -25,7 +25,7 @@ func (g *GameModel) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func gameToModel(game *Game) *GameModel {
+func GameToModel(game *Game) *GameModel {
 	return &GameModel{
 		ID:          game.id,
 		Number:      game.number,
@@ -35,7 +35,7 @@ func gameToModel(game *Game) *GameModel {
 	}
 }
 
-func modelToGame(model *GameModel) *Game {
+func ModelToGame(model *GameModel) *Game {
 	return &Game{
 		id:          model.ID,
 		number:      model.Number,

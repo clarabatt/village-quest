@@ -27,7 +27,7 @@ func (g *ResourcesModel) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func resourcesToModel(resources *Resources, turnID uuid.UUID) *ResourcesModel {
+func ResourcesToModel(resources *Resources, turnID uuid.UUID) *ResourcesModel {
 	return &ResourcesModel{
 		TurnID: turnID,
 		Stone:  resources.GetStone(),
@@ -38,7 +38,7 @@ func resourcesToModel(resources *Resources, turnID uuid.UUID) *ResourcesModel {
 	}
 }
 
-func modelToResources(model *ResourcesModel) *Resources {
+func ModelToResources(model *ResourcesModel) *Resources {
 	return NewResourceControl(
 		model.Stone,
 		model.Gold,

@@ -6,14 +6,14 @@ import (
 )
 
 type TurnModel struct {
-	ID                 uuid.UUID  `gorm:"type:uuid;primaryKey"`
-	GameID             uuid.UUID  `gorm:"type:uuid;index;not null"`
-	Number             int        `gorm:"not null"`
-	Status             string     `gorm:"type:varchar(20);not null;default:'in_progress'"`
-	CurrentPhase       string     `gorm:"type:varchar(20);not null;default:'collect'"`
-	ActionsUsed        int        `gorm:"not null;default:0"`
-	ResourcesCollected bool       `gorm:"not null;default:false"`
-	EventsProcessed    bool       `gorm:"not null;default:false"`
+	ID                 uuid.UUID `gorm:"type:uuid;primaryKey"`
+	GameID             uuid.UUID `gorm:"type:uuid;index;not null"`
+	Number             int       `gorm:"not null"`
+	Status             string    `gorm:"type:varchar(20);not null;default:'in_progress'"`
+	CurrentPhase       string    `gorm:"type:varchar(20);not null;default:'collect'"`
+	ActionsUsed        int       `gorm:"not null;default:0"`
+	ResourcesCollected bool      `gorm:"not null;default:false"`
+	EventsProcessed    bool      `gorm:"not null;default:false"`
 	gorm.Model
 }
 
@@ -24,7 +24,7 @@ func (t *TurnModel) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func turnToModel(turn *Turn) (*TurnModel, error) {
+func TurnToModel(turn *Turn) (*TurnModel, error) {
 	return &TurnModel{
 		ID:                 turn.GetID(),
 		GameID:             turn.GetGameID(),
@@ -37,7 +37,7 @@ func turnToModel(turn *Turn) (*TurnModel, error) {
 	}, nil
 }
 
-func modelToTurn(model *TurnModel) (*Turn, error) {
+func ModelToTurn(model *TurnModel) (*Turn, error) {
 	return LoadTurn(
 		model.ID,
 		model.GameID,

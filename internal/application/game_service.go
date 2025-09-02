@@ -1,9 +1,12 @@
-package game
+package application
 
 import (
 	"errors"
 	"fmt"
 	"log"
+
+	. "villagequest/internal/domain/game"
+	. "villagequest/internal/repositories"
 
 	"github.com/google/uuid"
 )
@@ -16,7 +19,7 @@ var (
 )
 
 type gameService struct {
-	repository GameRepository
+	gameRepo GameRepository
 }
 
 type GameService interface {
@@ -28,7 +31,7 @@ type GameService interface {
 
 func NewGameService(repository GameRepository) GameService {
 	return &gameService{
-		repository: repository,
+		gameRepo: repository,
 	}
 }
 
@@ -37,7 +40,7 @@ func (s *gameService) CreateNewGame(playerName string) (*Game, error) {
 		return nil, ErrPlayerNameEmpty
 	}
 
-	existingGames, err := s.repository.GetAll()
+	existingGames, err := s.gameRepo.GetAll()
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch existing games: %w", err)
 	}
@@ -46,7 +49,7 @@ func (s *gameService) CreateNewGame(playerName string) (*Game, error) {
 
 	gameInstance := NewGame(nextGameNumber, playerName)
 
-	if _, err := s.repository.Create(gameInstance); err != nil {
+	if _, err := s.gameRepo.Create(gameInstance); err != nil {
 		return nil, fmt.Errorf("failed to create game: %w", err)
 	}
 
@@ -55,7 +58,7 @@ func (s *gameService) CreateNewGame(playerName string) (*Game, error) {
 }
 
 func (s *gameService) GetAllGames() ([]Game, error) {
-	games, err := s.repository.GetAll()
+	games, err := s.gameRepo.GetAll()
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch games: %w", err)
 	}
@@ -64,12 +67,12 @@ func (s *gameService) GetAllGames() ([]Game, error) {
 }
 
 func (s *gameService) DeleteGame(gameId uuid.UUID) error {
-	_, err := s.repository.GetByID(gameId)
+	_, err := s.gameRepo.GetByID(gameId)
 	if err != nil {
 		return ErrGameNotFound
 	}
 
-	err = s.repository.Delete(gameId)
+	err = s.gameRepo.Delete(gameId)
 	if err != nil {
 		return fmt.Errorf("failed to delete game: %w", err)
 	}
@@ -87,7 +90,7 @@ func (s *gameService) SaveGame(game *Game) error {
 		return ErrEmptyId
 	}
 
-	_, err := s.repository.Update(game)
+	_, err := s.gameRepo.Update(game)
 	if err != nil {
 		return fmt.Errorf("failed to save game: %w", err)
 	}

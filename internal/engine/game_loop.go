@@ -3,8 +3,9 @@ package engine
 import (
 	"fmt"
 	"strings"
+	. "villagequest/internal/application"
 	. "villagequest/internal/domain/game"
-	. "villagequest/internal/domain/turn"
+
 	"villagequest/internal/ui/menu"
 )
 

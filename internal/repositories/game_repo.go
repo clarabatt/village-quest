@@ -1,8 +1,10 @@
-package game
+package repositories
 
 import (
 	"errors"
 	"fmt"
+
+	. "villagequest/internal/domain/game"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -28,13 +30,13 @@ func NewGameRepository(db *gorm.DB) GameRepository {
 }
 
 func (r *gameRepository) Create(game *Game) (*Game, error) {
-	model := gameToModel(game)
+	model := GameToModel(game)
 
 	if err := r.db.Create(model).Error; err != nil {
 		return nil, fmt.Errorf("failed to create game: %w", err)
 	}
 
-	result := modelToGame(model)
+	result := ModelToGame(model)
 	return result, nil
 }
 
@@ -49,7 +51,7 @@ func (r *gameRepository) GetByID(id uuid.UUID) (*Game, error) {
 		return nil, fmt.Errorf("failed to get game by ID: %w", err)
 	}
 
-	game := modelToGame(&model)
+	game := ModelToGame(&model)
 	return game, nil
 }
 
@@ -64,15 +66,15 @@ func (r *gameRepository) GetByNumber(number int) (*Game, error) {
 		return nil, fmt.Errorf("failed to get game by number: %w", err)
 	}
 
-	game := modelToGame(&model)
+	game := ModelToGame(&model)
 	return game, nil
 }
 
 func (r *gameRepository) Update(game *Game) (*Game, error) {
-	model := gameToModel(game)
+	model := GameToModel(game)
 
 	result := r.db.Model(&GameModel{}).
-		Where("id = ?", game.id).
+		Where("id = ?", game.Id()).
 		Updates(model)
 
 	if result.Error != nil {
@@ -80,15 +82,15 @@ func (r *gameRepository) Update(game *Game) (*Game, error) {
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, fmt.Errorf("game not found: id=%s", game.id)
+		return nil, fmt.Errorf("game not found: id=%s", game.Id())
 	}
 
 	var updatedModel GameModel
-	if err := r.db.Where("id = ?", game.id).First(&updatedModel).Error; err != nil {
+	if err := r.db.Where("id = ?", game.Id()).First(&updatedModel).Error; err != nil {
 		return nil, fmt.Errorf("failed to fetch updated game: %w", err)
 	}
 
-	updatedGame := modelToGame(&updatedModel)
+	updatedGame := ModelToGame(&updatedModel)
 	return updatedGame, nil
 }
 
@@ -116,7 +118,7 @@ func (r *gameRepository) GetAll() ([]Game, error) {
 
 	games := make([]Game, len(models))
 	for i, model := range models {
-		games[i] = *modelToGame(&model)
+		games[i] = *ModelToGame(&model)
 	}
 
 	return games, nil
