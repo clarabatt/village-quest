@@ -34,14 +34,14 @@ func NewMenu(title string, exitOption *int) *Menu {
 	return &Menu{
 		Title:      title,
 		ExitOption: exitValue,
-		ExitText:   "Exit",
+		ExitText:   "🚪 Exit",
 	}
 }
 
 func NewSubMenu(title string, parent *Menu, exitOption *int) *Menu {
 	menu := NewMenu(title, exitOption)
 	menu.Parent = parent
-	menu.ExitText = "Back"
+	menu.ExitText = "⬅️ Back"
 	return menu
 }
 
@@ -62,7 +62,7 @@ func (m *Menu) AddItem(name string, action func(), order int) error {
 	return nil
 }
 
-func (m *Menu) Show() {
+func (m *Menu) Show() bool {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -73,7 +73,7 @@ func (m *Menu) Show() {
 			if err := scanner.Err(); err != nil {
 				log.Printf("Input error: %v", err)
 			}
-			return
+			return false
 		}
 
 		input := strings.TrimSpace(scanner.Text())
@@ -91,7 +91,7 @@ func (m *Menu) Show() {
 
 		if selected == m.ExitOption {
 			fmt.Println("Exiting...")
-			return
+			return true
 		}
 
 		if item, ok := mappedOptions[selected]; ok {
@@ -112,14 +112,14 @@ func (m *Menu) printMenu() map[int]MenuItem {
 		fmt.Printf("← %s\n", m.Parent.Title)
 	}
 
-	fmt.Printf("=== %s ===\n", m.Title)
+	fmt.Printf("=== 🎮 %s 🎮 ===\n", m.Title)
 	for _, item := range sortedOptions {
 		fmt.Printf("%d. %s\n", item.Order, item.Name)
 		mapped[item.Order] = item
 	}
 
 	fmt.Printf("%d. %s\n", m.ExitOption, m.ExitText)
-	fmt.Print("> ")
+	fmt.Print("🎯 > ")
 	return mapped
 }
 

@@ -25,9 +25,9 @@ func RunMainMenu(gameService GameService, gameStarter func(*game.Game)) {
 		GameStarter: gameStarter,
 	}
 
-	m.AddItem("New game", mainMenu.NewGame, 1)
-	m.AddItem("Load game", mainMenu.LoadGame, 2)
-	m.AddItem("Delete game", mainMenu.DeleteGame, 3)
+	m.AddItem("🆕 New game", mainMenu.NewGame, 1)
+	m.AddItem("📂 Load game", mainMenu.LoadGame, 2)
+	m.AddItem("🗑️ Delete game", mainMenu.DeleteGame, 3)
 
 	m.Show()
 }

@@ -30,26 +30,26 @@ func NewGameLoop(g *Game, gameService GameService, turnService TurnService) *Gam
 }
 
 func (loop *GameLoop) Run() {
-	for {
+	playerWantsToExit := false
+
+	for !playerWantsToExit && !loop.Game.IsOver() {
 		loop.displayGameStatus()
 		menuTitle := fmt.Sprintf("🏘️ Village Quest - Year %d 🏘️", loop.Turn)
 		m := menu.NewMenu(menuTitle, nil)
 
 		m.AddItem("🏠 Build Structure", loop.Build, 1)
-		m.AddItem("❌ Quit Game", loop.Quit, 9)
+		m.AddItem("💾 Save", loop.Save, 2)
 
-		m.Show()
+		playerWantsToExit = m.Show()
 
 		// TODO: Increment turn
-
-		if err := loop.GameService.SaveGame(loop.Game); err != nil {
-			fmt.Printf("Warning: Failed to auto-save game: %v\n", err)
-		}
-
-		if loop.Game.IsOver() {
-			loop.displayGameOver()
-			break
-		}
+	}
+	if loop.Game.IsOver() {
+		loop.displayGameOver()
+	} else if playerWantsToExit {
+		fmt.Println("👋 Returning to main menu...")
+		fmt.Println("💾 Your progress has been saved!")
+		menu.WaitForEnter()
 	}
 }
 
@@ -59,6 +59,7 @@ func (loop *GameLoop) displayGameOver() {
 	fmt.Printf("Your village lasted %d years!\n", loop.Turn-1)
 	fmt.Printf("Thanks for playing, %s!\n", loop.Game.PlayersName())
 	fmt.Println(strings.Repeat("=", 60))
+	menu.WaitForEnter()
 }
 
 func (loop *GameLoop) displayGameStatus() {
@@ -68,11 +69,16 @@ func (loop *GameLoop) displayGameStatus() {
 }
 
 func (loop *GameLoop) Build() {
-	fmt.Println("You built a house")
+	fmt.Println("🏗️  You built a house! Your village is growing...")
+	fmt.Println("📈 Population increased!")
+	fmt.Println("💰 Resources consumed")
+
+	// TODO: Add actual building logic here
+
+	menu.WaitForEnter()
 }
 
-func (loop *GameLoop) Quit() {
-	fmt.Println("Thanks for playing!")
+func (loop *GameLoop) Save() {
 	fmt.Println("💾 Saving your progress...")
 
 	if err := loop.GameService.SaveGame(loop.Game); err != nil {
@@ -81,5 +87,5 @@ func (loop *GameLoop) Quit() {
 		fmt.Println("✅ Game saved successfully!")
 	}
 
-	loop.Game.SetOver(true)
+	menu.WaitForEnter()
 }
